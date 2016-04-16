@@ -1,0 +1,13 @@
+In no particular order:
+
+- Clean up grammar
+- Add atoms
+- Test suite
+- Add range operator
+- Pretty printer
+- Repl
+- Regex
+- Standard library
+- Document syntax and semantics
+- List comprehensions
+- Lazy evaluation
