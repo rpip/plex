@@ -77,8 +77,9 @@ Plex (0.0.1)
 /pp   - Tokenize and parse code
 plex (1)>
 ```
-  5. Refer to "What it looks like above and start hacking"!
+  Refer to "What it looks like above and start hacking"!
   
+
 
 ## Installation
 
