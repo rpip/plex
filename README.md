@@ -8,6 +8,7 @@ Plex supports eager evaluation, optional lazy evaluation, first-class functions,
 
 _Work in Progress_
 
+## What it looks like
 
 ```ocaml
 plex> let x = 3 with fn y -> y + 10
@@ -41,6 +42,21 @@ plex> (fn -> x + y), 10
 plex> maths.add fn -> x + y, 10
 ```
 
+## Try it
+
+```bash
+$ git clone https://github.com/rpip/plex && cd plex
+$ mix escript.build
+$ ./plex test/hello.plx
+$ # To start the REPL
+$ ./plex
+Plex (0.0.1)
+/help - Print this help message
+/quit - Exit the REPL
+/lex  - Tokenize code
+/pp   - Tokenize and parse code
+plex (1)>
+```
 
 ## Installation
 
