@@ -43,7 +43,7 @@ plex> maths.add fn -> x + y, 10
 ```
 
 ## Try it
-NB: Intall elixir from http://elixir-lang.org/install.html in order for mix to work. 
+NB: Install elixir from http://elixir-lang.org/install.html in order for mix to work. 
 ```bash
 $ git clone https://github.com/rpip/plex && cd plex
 $ mix escript.build
