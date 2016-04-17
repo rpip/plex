@@ -11,25 +11,33 @@ UpperCase     = [A-Z]
 LowerCase     = [a-z]
 Whitespace    = [\s\t]
 NewLine       = [\n\r]
-LineComment   = (#|\/\/).*
-BlockComment  = \/\*(.*\n?)+\*\/
+LineComment   = (\-\-).*
+BlockComment  = (\{\-)(.*\n?)+(\-})
 Digit         = (\+|-)?[0-9]+
 DoubleQuoted  = "(\\\^.|\\.|[^\"])*"
 SingleQuoted  = '(\\\^.|\\.|[^\'])*'
 
 Rules.
 
+%% Identifier
 ({LowerCase}|_)({UpperCase}|{LowerCase}|{Digit}|_)* : build_identifier(TokenChars, TokenLine).
 
+%% Atom
+\:({UpperCase}|{LowerCase}|_)({UpperCase}|{Digit}|{LowerCase}|_)* : build_atom(TokenChars, TokenLine, TokenLen).
+\:{DoubleQuoted} : build_quoted_atom(TokenChars, TokenLine, TokenLen).
+\:{SingleQuoted} : build_quoted_atom(TokenChars, TokenLine, TokenLen).
+
+%% Numbers and Strings
 {Digit}+\.{Digit}+ : build_float(TokenChars, TokenLine).
 {Digit}+           : build_integer(TokenChars, TokenLine).
 {DoubleQuoted}     : build_string(TokenChars, TokenLine).
 {SingleQuoted}     : build_string(TokenChars, TokenLine).
 
+%% Block comment
+{BlockComment} : build_block_comment(TokenChars, TokenLine, TokenLen).
+
 %% Ignored
-{LineComment}  : skip_token.
-{Whitespace}+  : skip_token.
-{BlockComment} : skip_token.
+({LineComment}|{Whitespace}+|{NewLine}) : skip_token.
 
 \( : {token, {'(', TokenLine}}.
 \) : {token, {')', TokenLine}}.
@@ -49,8 +57,9 @@ Rules.
 >  : {token, {'>', TokenLine}}.
 != : {token, {'!=', TokenLine}}.
 ;  : {token,{'eol',TokenLine}}.
-\-> : {token, {'->', TokenLine}}.
-
+:  : {token, {':', TokenLine}}.
+\->  : {token, {'->', TokenLine}}.
+\.\. : {token, {'..', TokenLine}}.
 
 Erlang code.
 
@@ -69,6 +78,20 @@ build_float(Chars, Line) ->
 
 build_string(Chars, Line) ->
   {token, {string, Line, to_unicode(Chars)}}.
+
+build_atom(Chars, Line, Len) ->
+    String = lists:sublist(Chars, 2, Len - 1),
+    {token, {atom, Line, list_to_atom(String)}}.
+
+build_quoted_atom(Chars, Line, Len) ->
+    String = lists:sublist(Chars, 2, Len - 2),
+    build_atom(String, Line, Len).
+
+build_block_comment(Chars, Line, Len) ->
+    String = lists:sublist(Chars, 3, Len - 4),
+    String1 = 'Elixir.String.Chars':to_string(String),
+    String2 = 'Elixir.String':strip(String1),
+    {token, {block_comment, Line, String2}}.
 
 to_unicode(Chars) ->
     Str = string:sub_string(Chars, 2, length(Chars) - 1),

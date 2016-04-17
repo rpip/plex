@@ -29,8 +29,8 @@ Nonterminals
 Terminals
 
   '[' ']' '+' '-' '*' '/' '%' ',' '=' '{' '}' '(' ')' '<' '>' '==' '!='
-  'not' 'let' 'with' 'in' '->' '.' 'fn' 'if' 'then' 'else'
-  'and' 'or' true false integer float string nil identifier eol
+  '..' 'not' 'let' 'with' 'in' '->' '.' 'fn' 'if' 'then' 'else'
+  'and' 'or' true false integer float string nil identifier eol atom block_comment
   .
 
 Rootsymbol root.
@@ -48,15 +48,23 @@ expr_list -> expr eol expr_list : ['$1'|'$3'].
 expr -> identifier : '$1'.
 expr -> arith   : '$1'.
 expr -> boolean : '$1'.
-expr -> string  : unwrapn('$1').
+expr -> string  : unwrap('$1').
+expr -> atom  : unwrap('$1').
 expr -> number  : '$1'.
 expr -> record : '$1'.
+expr -> block_comment : '$1'.
 expr -> list : '$1'.
 expr -> if_expr : '$1'.
 expr -> project : '$1'.
 expr -> function : '$1'.
 expr -> call_expr : '$1'.
 expr -> '(' expr ')' : '$2'.
+expr -> integer '..' integer :
+  #range{
+     line=?line('$1'),
+     first='$1',
+     last='$3'
+    }.
 expr -> 'let' identifier '=' expr  :
   #bind{
      line=?line('$1'),
@@ -93,12 +101,17 @@ call_expr -> expr expr ',' expr :
     args=['$2'|'$4']
    }.
 
-
 %% Lists
 list -> '[' ']'        :
   #list{
     line=?line('$1'),
     elements=[]
+  }.
+list -> '[' eol ']' : #list{line=?line('$1')}.
+list -> '[' eol elems ']'  :
+  #list{
+    line=?line('$1'),
+    elements='$3'
   }.
 list -> '[' elems ']'  :
   #list{
@@ -111,19 +124,15 @@ elems -> elem ',' elems : ['$1'|'$3'].
 elem ->  record : '$1'.
 elem ->  value  : '$1'.
 
-value -> list : unwrapn('$1').
-value -> string : unwrapn('$1').
-value -> number : unwrapn('$1').
-value -> boolean : unwrapn('$1').
-value -> identifier : unwrapn('$1').
+value -> list : unwrap('$1').
+value -> string : unwrap('$1').
+value -> number : unwrap('$1').
+value -> atom : unwrap('$1').
+value -> boolean : unwrap('$1').
+value -> identifier : unwrap('$1').
 
 %% Records
-record -> '{' '}'              :
-  #record{
-     line=?line('$1'),
-     properties=[]
-    }.
-
+record -> '{' '}' : #record{line=?line('$1')}.
 record -> '{' fields '}'       :
   #record{
      line=?line('$1'),
@@ -156,6 +165,7 @@ function -> 'fn' args '->' expr :
 args -> identifier : ['$1'].
 args -> identifier ',' args : ['$1'|'$3'].
 
+%% IF conditions
 if_expr -> 'if' expr 'then' expr :
   #'if'{
      line=?line('$1'),
@@ -169,15 +179,6 @@ if_expr -> 'if' expr 'then' expr 'else' expr :
      true_clause='$4',
      false_clause='$6'
     }.
-
-%% Boolean values
-boolean -> true  : '$1'.
-boolean -> false : '$1'.
-boolean -> nil   : '$1'.
-
-%% Numbers
-number -> float   : '$1'.
-number -> integer : '$1'.
 
 %% Arithmetic and boolean  operations
 arith -> expr '+' expr	:
@@ -269,22 +270,15 @@ boolean -> expr 'or' expr  :
     right='$3'
   }.
 
+%% Boolean values
+boolean -> true  : '$1'.
+boolean -> false : '$1'.
+boolean -> nil   : '$1'.
+
+%% Numbers
+number -> float   : '$1'.
+number -> integer : '$1'.
+
 Erlang code.
 
--define(line(Node), element(2, Node)).
--define(op(Node), element(1, Node)).
--define(identifier_name(Id), element(3, Id)).
-
-%% Records
--record(record, {line, properties}).
--record(binary_op, {line, type, left, right}).
--record(unary_op, {line, type, arg}).
--record(bind, {line, name, value, with_clause, in_clause}).
--record(list, {line, elements}).
--record(project, {line, object, field}).
--record(function, {line, args, body}).
--record('if', {line, cond_clause, true_clause, false_clause}).
--record(call_expr, {line, applicant, args}).
-
-%% Functions
-unwrapn({_Token, _Line, Value}) -> Value.
+-include("plex.hrl").
