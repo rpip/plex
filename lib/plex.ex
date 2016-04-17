@@ -7,7 +7,7 @@ defmodule Plex do
   defmodule CLI do
     @moduledoc "Plex command line script"
 
-    def main([]), do: Plex.Repl.start
+    def main([]), do: Plex.Repl.run
 
     def main([file|_]) do
       path = Path.absname(file)

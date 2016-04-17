@@ -32,6 +32,9 @@ defmodule Plex.Mixfile do
   end
 
   def escript do
-    [main_module: Plex.CLI]
+    [
+        main_module: Plex.CLI,
+        emu_args: "-noshell -noinput -elixir ansi_enabled true"
+    ]
   end
 end

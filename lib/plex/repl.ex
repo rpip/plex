@@ -7,15 +7,50 @@ defmodule Plex.Repl do
   /pp   - Tokenize and parse code
   """
 
-  def start do
+  def run do
+    if tty_works? do
+      function = fn() ->
+        spawn(fn ->
+          :ok = :io.setopts(Process.group_leader(), [binary: true, encoding: :unicode])
+
+          start_repl
+          send(Process.whereis(:plex_repl), {self, :tty_sl_exit})
+          :ok
+        end)
+      end
+
+      :user_drv.start([:"tty_sl -c -e", {:erlang, :apply, [function, []]}])
+
+      receive do: (:tty_sl_exit -> :ok)
+    else
+      start_repl
+    end
+  end
+
+  defp tty_works? do
+    try do
+      port = Port.open({:spawn, 'tty_sl -c -e'}, [:eof])
+      Port.close(port)
+    catch _, _ ->
+        false
+    end
+  end
+
+  defp start_repl do
     IO.puts("Plex (0.0.1)")
     IO.puts @usage
+    term = System.get_env("TERM") || ""
+    IO.puts("Using a #{if tty_works?, do: "smart", else: "dumb"} terminal (TERM = \"#{term}\").")
+
     pid = spawn(fn -> repl([]) end)
+    Process.register(pid, :plex_repl)
     io(pid, 1, "plex")
   end
 
-  def repl(env) do
+  defp repl(env) do
     receive do
+      {from, :tty_sl_exit} ->
+        send(from, :tty_sl_exit)
       {_from, :exit} ->
         :ok
       {_from, :help} ->
@@ -40,7 +75,7 @@ defmodule Plex.Repl do
   end
 
   defp io(repl_id, counter, prefix) do
-    case IO.gets(:stdio, "#{prefix} (#{counter})> ") do
+    case IO.gets("#{prefix} (#{counter})> ") do
       :eof ->
         send(repl_id, :exit)
       {:error, reason} ->
