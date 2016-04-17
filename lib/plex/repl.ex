@@ -1,36 +1,36 @@
 defmodule Plex.Repl do
   @moduledoc "Starts a repl to evauluate Plex code"
   @usage """
-  /help - Print this help message \n
-  /quit - Exit the REPL \n
-  /lex  - Tokenize code \n
+  /help - Print this help message
+  /quit - Exit the REPL
+  /lex  - Tokenize code
   /pp   - Tokenize and parse code
   """
-  require Logger
 
   def start do
-    IO.puts("Plex (0.0.1) - type (/quit) to exit\n")
+    IO.puts("Plex (0.0.1)")
+    IO.puts @usage
     pid = spawn(fn -> repl([]) end)
     io(pid, 1, "plex")
   end
 
   def repl(env) do
     receive do
-      {from, :exit} ->
+      {_from, :exit} ->
         :ok
-      {from, :help} ->
+      {_from, :help} ->
         IO.puts @usage
         repl(env)
-      {from, {:lex, code}} ->
+      {_from, {:lex, code}} ->
         tokens = Plex.Compiler.lex(code)
         Enum.each(tokens, fn(token) -> IO.puts inspect(token) end)
         repl(env)
-      {from, {:pp, code}} ->
+      {_from, {:pp, code}} ->
         tokens = Plex.Compiler.lex(code)
         {:ok, ast} = Plex.Compiler.parse(tokens)
         Enum.each(ast, fn(node) -> IO.puts inspect(node) end)
         repl(env)
-      {from, {:eval, code}} ->
+      {_from, {:eval, code}} ->
         # TODO: analyze and evaluate ast
         # Plex.Compiler.Parser.eval(ast)
         result = Plex.Compiler.lex(code) |> Plex.Compiler.parse
@@ -44,7 +44,7 @@ defmodule Plex.Repl do
       :eof ->
         send(repl_id, :exit)
       {:error, reason} ->
-        Plex.Logger.error("Error reading from stdin: #{reason}")
+        IO.puts("Error reading from stdin: #{reason}")
         io(repl_id, counter + 1, prefix)
       text ->
         text = String.strip(text)
@@ -61,7 +61,7 @@ defmodule Plex.Repl do
             send(repl_id, {self, {:pp, rest}})
             io(repl_id, counter + 1, prefix)
           b = <<"/",_ :: binary>> ->
-            Logger.error("Unknown command: #{b}")
+           IO.puts("Unknown command: #{b}")
             io(repl_id, counter + 1, prefix)
           code ->
             code =  String.rstrip(code, ?\n)
