@@ -9,7 +9,7 @@ defmodule Plex.Repl do
   require Logger
 
   def start do
-    IO.puts("Plex (0.0.1) - type (q) to exit\n")
+    IO.puts("Plex (0.0.1) - type (/quit) to exit\n")
     pid = spawn(fn -> repl([]) end)
     io(pid, 1, "plex")
   end
@@ -64,8 +64,13 @@ defmodule Plex.Repl do
             Logger.error("Unknown command: #{b}")
             io(repl_id, counter + 1, prefix)
           code ->
-            send(repl_id, {self, {:eval, code}})
-            io(repl_id, counter + 1, prefix)
+            code =  String.rstrip(code, ?\n)
+            if String.length(code) == 0 do
+              io(repl_id, counter + 1, prefix)
+            else
+              send(repl_id, {self, {:eval, code}})
+              io(repl_id, counter + 1, prefix)
+            end
         end
     end
   end

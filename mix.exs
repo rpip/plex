@@ -7,7 +7,8 @@ defmodule Plex.Mixfile do
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps,
+     escript: escript]
   end
 
   # Configuration for the OTP application
@@ -28,5 +29,9 @@ defmodule Plex.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     []
+  end
+
+  def escript do
+    [main_module: Plex.CLI]
   end
 end
