@@ -28,6 +28,9 @@
 -record(interpolate, {line, body}).
 -record(list_comprehension, {line, output_expr, def, generator, guard}).
 -record('case', {line, expr, clauses}).
+-record(tuple, {line, elements}).
 
 %% Functions
 unwrap({_Token, _Line, Value}) -> Value.
+
+to_tuple(Xs) -> erlang:list_to_tuple(Xs).

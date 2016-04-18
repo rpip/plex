@@ -161,7 +161,14 @@ value -> string : unwrap('$1').
 value -> number : unwrap('$1').
 value -> atom : unwrap('$1').
 value -> boolean : unwrap('$1').
-value -> identifier : unwrap('$1').
+value -> identifier : '$1'.
+
+%% Tuples
+record -> '{' elems '}'       :
+  #tuple{
+     line=?line('$1'),
+     elements=to_tuple('$2')
+    }.
 
 %% Records
 record -> '{' '}' : #record{line=?line('$1')}.
