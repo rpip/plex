@@ -10,6 +10,8 @@ Nonterminals
   expr_list
   expr
   if_expr
+  for_expr
+  while_expr
   arith
   record
   field
@@ -30,7 +32,8 @@ Terminals
 
   '[' ']' '+' '-' '*' '/' '%' ',' '=' ':=' '{' '}' '(' ')' '<' '>' '==' '!='
   '..' 'not' 'let' 'with' 'in' '->' '.' 'fn' 'if' 'then' 'else' '!'
-  'and' 'or' true false integer float string nil identifier eol atom block_comment
+  'and' 'or' 'for' 'do' 'while' 'end' true false integer float string
+   nil identifier eol atom block_comment
   .
 
 Rootsymbol root.
@@ -58,6 +61,8 @@ expr -> if_expr : '$1'.
 expr -> project : '$1'.
 expr -> function : '$1'.
 expr -> call_expr : '$1'.
+expr -> for_expr : '$1'.
+expr -> while_expr : '$1'.
 expr -> '(' expr ')' : '$2'.
 
 %% references
@@ -182,17 +187,34 @@ function -> 'fn' args '->' expr :
 args -> identifier : ['$1'].
 args -> identifier ',' args : ['$1'|'$3'].
 
+%% FOR expressions
+for_expr -> 'for' expr 'in' expr 'do' expr 'end':
+  #for{
+     line=?line('$1'),
+     var='$2',
+     container='$4',
+     body='$6'
+    }.
+
+%% WHILE expressions
+while_expr -> 'while' expr 'do' expr 'end' :
+  #while{
+     line=?line('$1'),
+     condition='$2',
+     body='$4'
+    }.
+
 %% IF conditions
 if_expr -> 'if' expr 'then' expr :
   #'if'{
      line=?line('$1'),
-     cond_clause='$2',
+     condition='$2',
      true_clause='$4'
     }.
 if_expr -> 'if' expr 'then' expr 'else' expr :
   #'if'{
      line=?line('$1'),
-     cond_clause='$2',
+     condition='$2',
      true_clause='$4',
      false_clause='$6'
     }.

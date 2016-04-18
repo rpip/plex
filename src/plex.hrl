@@ -17,13 +17,14 @@
 -record(list, {line, elements = []}).
 -record(project, {line, object, field}).
 -record(function, {line, args = [], body}).
--record('if', {line, cond_clause, true_clause, false_clause}).
+-record('if', {line, condition, true_clause, false_clause}).
 -record(call_expr, {line, applicant, args = []}).
 -record(range, {line, first, last}).
 -record(block_comment, {line, contents = []}).
 -record(reference_get, {line, name}).
 -record(reference_update, {line, name, value}).
--record(for, {line, var_name, body}).
+-record(for, {line, var, container, body}).
+-record(while, {line, condition, body}).
 
 %% Functions
 unwrap({_Token, _Line, Value}) -> Value.

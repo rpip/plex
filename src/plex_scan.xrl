@@ -129,7 +129,13 @@ reserved_word('var') ->
     true;
 reserved_word('with') ->
     true;
+reserved_word('for') ->
+    true;
+reserved_word('do') ->
+    true;
 reserved_word('end') ->
+    true;
+reserved_word('while') ->
     true;
 reserved_word(_) ->
     false.
