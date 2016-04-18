@@ -1,10 +1,10 @@
 defmodule Plex.Repl do
   @moduledoc "Starts a repl to evauluate Plex code"
   @usage """
-  /help - Print this help message
-  /quit - Exit the REPL
-  /lex  - Tokenize code
-  /pp   - Tokenize and parse code
+  /h   - Print this help message
+  /q   -  Exit the REPL
+  /lex - Tokenize code
+  /pp  - Tokenize and parse code
   """
 
   def run do
@@ -14,7 +14,9 @@ defmodule Plex.Repl do
           :ok = :io.setopts(Process.group_leader(), [binary: true, encoding: :unicode])
 
           start_repl
+
           send(Process.whereis(:plex_repl), {self, :tty_sl_exit})
+
           :ok
         end)
       end
@@ -27,7 +29,7 @@ defmodule Plex.Repl do
     end
   end
 
-  defp tty_works? do
+  def tty_works? do
     try do
       port = Port.open({:spawn, 'tty_sl -c -e'}, [:eof])
       Port.close(port)
@@ -84,9 +86,9 @@ defmodule Plex.Repl do
       text ->
         text = String.strip(text)
         case text do
-          <<"/quit", _ :: binary>> ->
+          <<"/q", _ :: binary>> ->
             send(repl_id, :exit)
-          <<"/help", _ :: binary>> ->
+          <<"/h", _ :: binary>> ->
             send(repl_id, {self, :help})
             io(repl_id, counter + 1, prefix)
           <<"/lex", rest :: binary>> ->

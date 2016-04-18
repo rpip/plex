@@ -51,10 +51,10 @@ $ ./plex test/hello.plx
 $ # To start the REPL
 $ ./plex
 Plex (0.0.1)
-/help - Print this help message
-/quit - Exit the REPL
-/lex  - Tokenize code
-/pp   - Tokenize and parse code
+/h   - Print this help message
+/q   - Exit the REPL
+/lex - Tokenize code
+/pp  - Tokenize and parse code
 plex (1)>
 ```
 
