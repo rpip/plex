@@ -43,7 +43,7 @@ plex> maths.add fn -> x + y, 10
 ```
 
 ## Try it
-
+NB: Install elixir from http://elixir-lang.org/install.html in order for mix to work. 
 ```bash
 $ git clone https://github.com/rpip/plex && cd plex
 $ mix escript.build
@@ -57,6 +57,29 @@ Plex (0.0.1)
 /pp  - Tokenize and parse code
 plex (1)>
 ```
+
+### Windows
+
+  1. Download and install git from https://git-scm.com/download/win.
+  2. Download and install elixir from http://elixir-lang.org/install.html in order to use mix.
+  3. Start git bash from command line. You can search for it from the windows start menu as well.
+  4. Type the following in git bash:
+
+```bash
+$ git clone https://github.com/rpip/plex && cd plex
+$ mix escript.build
+$ ./plex test/hello.plx
+$ ./plex
+Plex (0.0.1)
+/help - Print this help message
+/quit - Exit the REPL
+/lex  - Tokenize code
+/pp   - Tokenize and parse code
+plex (1)>
+```
+  Refer to "What it looks like above and start hacking"!
+  
+
 
 ## Installation
 
