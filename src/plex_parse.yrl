@@ -12,6 +12,11 @@ Nonterminals
   if_expr
   for_expr
   while_expr
+  range_expr
+  case_expr
+  clauses
+  clause
+  pattern
   arith
   record
   field
@@ -24,7 +29,7 @@ Nonterminals
   number
   project
   function
-  call_expr
+  app
   args
   .
 
@@ -32,8 +37,8 @@ Terminals
 
   '[' ']' '+' '-' '*' '/' '%' ',' '=' ':=' '{' '}' '(' ')' '<' '>' '==' '!='
   '..' 'not' 'let' 'with' 'in' '->' '.' 'fn' 'if' 'then' 'else' '!'
-  'and' 'or' 'for' 'do' 'while' 'end' true false integer float string
-   nil identifier eol atom block_comment
+  'and' 'or' 'for' 'do' 'while' 'end' 'case' true false integer float string
+   nil identifier eol atom block_comment string_interpolate
   .
 
 Rootsymbol root.
@@ -60,11 +65,17 @@ expr -> list : '$1'.
 expr -> if_expr : '$1'.
 expr -> project : '$1'.
 expr -> function : '$1'.
-expr -> call_expr : '$1'.
+expr -> app : '$1'.
 expr -> for_expr : '$1'.
 expr -> while_expr : '$1'.
+expr -> case_expr : '$1'.
+expr -> range_expr : '$1'.
 expr -> '(' expr ')' : '$2'.
-
+expr -> string_interpolate :
+  #interpolate{
+     line=?line('$1'),
+     body='$1'
+    }.
 %% references
 expr -> '!' identifier :
   #reference_get{
@@ -79,7 +90,7 @@ expr -> identifier ':=' expr :
   }.
 
 %% range
-expr -> integer '..' integer :
+range_expr -> integer '..' integer :
   #range{
      line=?line('$1'),
      first='$1',
@@ -88,21 +99,20 @@ expr -> integer '..' integer :
 
 %% Let bindings
 expr -> 'let' identifier '=' expr  :
-  #bind{
+  #'let'{
      line=?line('$1'),
      name='$2',
      value='$4'
     }.
-
 expr -> 'let' identifier '=' expr 'with' expr :
-  #bind{
+  #'let'{
      line=?line('$1'),
      name='$2',
      value='$4',
      with_clause='$6'
   }.
 expr -> 'let' identifier '=' expr 'in' expr :
-  #bind{
+  #'let'{
      line=?line('$1'),
      name='$2',
      value='$4',
@@ -110,30 +120,28 @@ expr -> 'let' identifier '=' expr 'in' expr :
     }.
 
 %% Call expressions
-call_expr -> expr expr :
-  #call_expr{
+app -> expr '(' ')':
+  #app{
+    line=?line('$1'),
+    applicant='$1'
+   }.
+app -> expr args :
+  #app{
     line=?line('$1'),
     applicant='$1',
     args=['$2']
    }.
-call_expr -> expr expr ',' expr :
-  #call_expr{
+app -> expr '(' args ')':
+  #app{
     line=?line('$1'),
     applicant='$1',
-    args=['$2'|'$4']
+    args=['$3']
    }.
-
 %% Lists
 list -> '[' ']'        :
   #list{
     line=?line('$1'),
     elements=[]
-  }.
-list -> '[' eol ']' : #list{line=?line('$1')}.
-list -> '[' eol elems ']'  :
-  #list{
-    line=?line('$1'),
-    elements='$3'
   }.
 list -> '[' elems ']'  :
   #list{
@@ -143,8 +151,10 @@ list -> '[' elems ']'  :
 
 elems -> elem       : ['$1'].
 elems -> elem ',' elems : ['$1'|'$3'].
-elem ->  record : '$1'.
-elem ->  value  : '$1'.
+elem  -> record : '$1'.
+elem  -> value  : '$1'.
+elem  -> function : '$1'.
+elem  -> app : '$1'.
 
 value -> list : unwrap('$1').
 value -> string : unwrap('$1').
@@ -184,10 +194,16 @@ function -> 'fn' args '->' expr :
      args='$2',
      body='$4'
     }.
-args -> identifier : ['$1'].
-args -> identifier ',' args : ['$1'|'$3'].
+args -> expr : ['$1'].
+args -> expr ',' args : ['$1'|'$3'].
 
 %% FOR expressions
+for_expr -> 'for' expr 'in' expr 'do' 'end':
+  #for{
+     line=?line('$1'),
+     var='$2',
+     container='$4'
+    }.
 for_expr -> 'for' expr 'in' expr 'do' expr 'end':
   #for{
      line=?line('$1'),
@@ -203,6 +219,27 @@ while_expr -> 'while' expr 'do' expr 'end' :
      condition='$2',
      body='$4'
     }.
+
+%% CASE expressions
+case_expr -> 'case' expr 'do' clauses 'end' :
+  #'case'{
+     line=?line('$1'),
+     expr='$2',
+     clauses='$4'
+    }.
+
+clause -> pattern '->' expr : [{'$1','$3'}].
+clauses -> clause : ['$1'].
+clauses -> clause eol clauses : ['$1'|'$3'].
+clauses -> clause clauses : ['$1'|'$2'].
+
+pattern -> atom       : '$1'.
+pattern -> string     : '$1'.
+pattern -> list       : '$1'.
+pattern -> record     : '$1'.
+pattern -> identifier : '$1'.
+pattern -> number     : '$1'.
+pattern -> range_expr : '$1'.
 
 %% IF conditions
 if_expr -> 'if' expr 'then' expr :

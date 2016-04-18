@@ -60,8 +60,9 @@ Rules.
 :  : {token, {':', TokenLine}}.
 \->  : {token, {'->', TokenLine}}.
 \.\. : {token, {'..', TokenLine}}.
-:=   : {token, {':=', TokenLine}}.
-!    : {token, {'!', TokenLine}}.
+:= : {token, {':=', TokenLine}}.
+!  : {token, {'!', TokenLine}}.
+| : {token, {'|', TokenLine}}.
 
 Erlang code.
 
@@ -79,7 +80,18 @@ build_float(Chars, Line) ->
   {token, {float, Line, list_to_float(Chars)}}.
 
 build_string(Chars, Line) ->
-  {token, {string, Line, to_unicode(Chars)}}.
+    String = to_unicode(Chars),
+    case re:run(String, "#{(.*)}", [global, {capture, all, list}]) of
+        nomatch ->
+            {token, {string, Line, String}};
+        {match, [[_, Match]]} ->
+            case Match of
+                [] ->
+                    {token, {string, Line, ""}};
+                _ ->
+                    {token, {string_interpolate, Line, Match}}
+            end
+    end.
 
 build_atom(Chars, Line, Len) ->
     String = lists:sublist(Chars, 2, Len - 1),
@@ -125,8 +137,6 @@ reserved_word('false') ->
     true;
 reserved_word('nil') ->
     true;
-reserved_word('var') ->
-    true;
 reserved_word('with') ->
     true;
 reserved_word('for') ->
@@ -136,6 +146,8 @@ reserved_word('do') ->
 reserved_word('end') ->
     true;
 reserved_word('while') ->
+    true;
+reserved_word('case') ->
     true;
 reserved_word(_) ->
     false.
