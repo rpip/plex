@@ -78,12 +78,12 @@ expr -> string_interpolate :
     }.
 %% references
 expr -> '!' identifier :
-  #reference_get{
+  #deref{
      line=?line('$1'),
      name='$2'
   }.
 expr -> identifier ':=' expr :
-  #reference_update{
+  #update_ref{
      line=?line('$1'),
      name='$1',
      value='$3'

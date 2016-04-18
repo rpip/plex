@@ -21,8 +21,8 @@
 -record(app, {line, applicant, args = []}).
 -record(range, {line, first, last}).
 -record(block_comment, {line, contents = []}).
--record(reference_get, {line, name}).
--record(reference_update, {line, name, value}).
+-record(deref, {line, name}).
+-record(update_ref, {line, name, value}).
 -record(for, {line, var, container, body}).
 -record(while, {line, condition, body}).
 -record(interpolate, {line, body}).
