@@ -21,6 +21,9 @@
 -record(call_expr, {line, applicant, args = []}).
 -record(range, {line, first, last}).
 -record(block_comment, {line, contents = []}).
+-record(reference_get, {line, name}).
+-record(reference_update, {line, name, value}).
+-record(for, {line, var_name, body}).
 
 %% Functions
 unwrap({_Token, _Line, Value}) -> Value.

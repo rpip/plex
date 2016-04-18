@@ -28,8 +28,8 @@ Nonterminals
 
 Terminals
 
-  '[' ']' '+' '-' '*' '/' '%' ',' '=' '{' '}' '(' ')' '<' '>' '==' '!='
-  '..' 'not' 'let' 'with' 'in' '->' '.' 'fn' 'if' 'then' 'else'
+  '[' ']' '+' '-' '*' '/' '%' ',' '=' ':=' '{' '}' '(' ')' '<' '>' '==' '!='
+  '..' 'not' 'let' 'with' 'in' '->' '.' 'fn' 'if' 'then' 'else' '!'
   'and' 'or' true false integer float string nil identifier eol atom block_comment
   .
 
@@ -59,12 +59,29 @@ expr -> project : '$1'.
 expr -> function : '$1'.
 expr -> call_expr : '$1'.
 expr -> '(' expr ')' : '$2'.
+
+%% references
+expr -> '!' identifier :
+  #reference_get{
+     line=?line('$1'),
+     name='$2'
+  }.
+expr -> identifier ':=' expr :
+  #reference_update{
+     line=?line('$1'),
+     name='$1',
+     value='$3'
+  }.
+
+%% range
 expr -> integer '..' integer :
   #range{
      line=?line('$1'),
      first='$1',
      last='$3'
     }.
+
+%% Let bindings
 expr -> 'let' identifier '=' expr  :
   #bind{
      line=?line('$1'),
