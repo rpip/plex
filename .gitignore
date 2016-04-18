@@ -1,0 +1,19 @@
+/_build
+/cover
+/deps
+erl_crash.dump
+*.ez
+NOTES
+*~
+.eunit/
+
+# Plex binary
+/plex
+
+# Leex and Yecc generated files
+/src/plex_scan.erl
+/src/plex_parse.erl
+
+# Emacs buffers
+.#*
+\#*#

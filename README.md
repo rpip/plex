@@ -6,6 +6,8 @@ It's inspired by [Andrej Bauer's Boa](http://www.andrej.com/plzoo/html/boa.html)
 
 Plex supports eager evaluation, optional lazy evaluation, first-class functions, and dynamic types. Where possible, Plex tries to checks type integrity of programs statically -- that is, at compile time.
 
+[![Build Status](https://travis-ci.org/rpip/plex.svg?branch=master)](https://travis-ci.org/rpip/plex)
+
 _Work in Progress_
 
 ## Examples
