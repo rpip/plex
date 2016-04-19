@@ -12,21 +12,21 @@ defprotocol Plex.Compiler.Node do
             | For.t
             | BlockComment.t
             | BinaryOp.t
-            | UnaryOp
-            | App
-            | Case
-            | Deref
-            | For
-            | Function
-            | Interpolate
-            | Project
-            | Let
-            | List
-            | Tuple
-            | Range
-            | Record
-            | While
-            | UpdateRef
+            | UnaryOp.t
+            | App.t
+            | Case.t
+            | Deref.t
+            | For.t
+            | Function.t
+            | Interpolate.t
+            | Project.t
+            | Let.t
+            | List.t
+            | Tuple.t
+            | Range.t
+            | Record.t
+            | While.t
+            | UpdateRef.t
 
 
   @type env :: map
