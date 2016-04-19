@@ -27,7 +27,7 @@ $ mix escript.build
 
 ## Run a file
 
-`$ ./plex test/examples/hello.plx`
+`$ ./plex test/examples/hello.px`
 
 ## REPL
 
