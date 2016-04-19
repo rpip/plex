@@ -4,7 +4,7 @@ Plex is a simple language, like Lua with some Ocaml feels. It is based on a noti
 
 It's inspired by [Andrej Bauer's Boa](http://www.andrej.com/plzoo/html/boa.html), but Plex aims to be more functional. Plex variabes are actually bindings, so it defaults to immutability. As in Ocaml, a list is an immutable, finite sequence of elements of the same type. As in Ocaml, there are imperative programming constructs such as `for` and `while` loops and also `ref` for getting a reference to mutable data.
 
-Plex supports eager evaluation, optional lazy evaluation, first-class functions, and dynamic types. Where possible, Plex tries to checks type integrity of programs statically -- that is, at compile time.
+Plex supports eager evaluation, optional lazy evaluation, first-class functions, and dynamic types. Where possible, Plex tries to check the integrity of programs statically -- that is, at compile time.
 
 [![Build Status](https://travis-ci.org/rpip/plex.svg?branch=master)](https://travis-ci.org/rpip/plex)
 
@@ -69,6 +69,12 @@ Hello Joe
 To run the automated test suite:
 
 `$ mix test`
+
+# Documentation
+
+You can build the project source docs locally by running `MIX_ENV=docs mix docs`.
+
+To learn more about the language specification, see the `Wiki` pages.
 
 ## Installation
 
