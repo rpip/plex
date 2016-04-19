@@ -13,6 +13,7 @@ Nonterminals
   for_expr
   while_expr
   range_expr
+  let_expr
   case_expr
   clauses
   clause
@@ -36,12 +37,22 @@ Nonterminals
 Terminals
 
   '[' ']' '+' '-' '*' '/' '%' ',' '=' ':=' '{' '}' '(' ')' '<' '>' '==' '!='
-  '..' 'not' 'let' 'with' 'in' '->' '.' 'fn' 'if' 'then' 'else' '!'
+  '..' 'not' 'let' 'with' 'in' '->' '.' 'fn' 'if' 'then' 'else' '!' '<=' '>='
   'and' 'or' 'for' 'do' 'while' 'end' 'case' true false integer float string
    nil identifier eol atom block_comment string_interpolate
   .
 
 Rootsymbol root.
+
+Left     100 'or'.
+Left     110 'and'.
+%% (1 + 2 * 3 -4) :: sub -> plus -> mul
+Left     210 '+' '-'.
+Left     220 '*' '/'.
+Nonassoc 300 'not'.
+Left     310 '.'.
+Nonassoc 400 '==' '!=' '>=' '<=' '>' '<'.
+
 
 root -> expr_list : '$1'.
 root -> '$empty' : [].
@@ -63,6 +74,7 @@ expr -> record : '$1'.
 expr -> block_comment : '$1'.
 expr -> list : '$1'.
 expr -> if_expr : '$1'.
+expr -> let_expr : '$1'.
 expr -> project : '$1'.
 expr -> function : '$1'.
 expr -> app : '$1'.
@@ -98,27 +110,34 @@ range_expr -> integer '..' integer :
     }.
 
 %% Let bindings
-expr -> 'let' identifier '=' expr  :
+let_expr -> 'let' identifier '=' expr  :
   #'let'{
      line=?line('$1'),
      name='$2',
      value='$4'
     }.
-expr -> 'let' identifier '=' expr 'with' expr :
+let_expr -> 'let' identifier '=' expr 'with' expr :
   #'let'{
      line=?line('$1'),
      name='$2',
      value='$4',
-     with_clause='$6'
+     with_block='$6'
   }.
-expr -> 'let' identifier '=' expr 'in' expr :
+let_expr -> 'let' identifier '=' expr 'in' expr :
   #'let'{
      line=?line('$1'),
      name='$2',
      value='$4',
-     in_clause='$6'
+     in_block='$6'
     }.
-
+let_expr -> 'let' identifier '=' expr 'with' expr 'in' expr:
+  #'let'{
+     line=?line('$1'),
+     name='$2',
+     value='$4',
+     with_block='$6',
+     in_block='$8'
+  }.
 %% Call expressions
 app -> expr '(' ')':
   #app{
@@ -182,6 +201,18 @@ fields -> field                : ['$1'].
 fields -> field ',' fields     :['$1'|'$3'].
 
 project -> identifier '.' identifier :
+  #project{
+    line=?line('$1'),
+    object='$1',
+    field='$3'
+  }.
+project -> '(' expr ')' '.' identifier:
+  #project{
+    line=?line('$1'),
+    object='$2',
+    field='$5'
+  }.
+project -> project '.' identifier:
   #project{
     line=?line('$1'),
     object='$1',
@@ -253,14 +284,14 @@ if_expr -> 'if' expr 'then' expr :
   #'if'{
      line=?line('$1'),
      condition='$2',
-     true_clause='$4'
+     then_block='$4'
     }.
 if_expr -> 'if' expr 'then' expr 'else' expr :
   #'if'{
      line=?line('$1'),
      condition='$2',
-     true_clause='$4',
-     false_clause='$6'
+     then_block='$4',
+     else_block='$6'
     }.
 
 %% Arithmetic and boolean  operations
@@ -321,6 +352,20 @@ boolean -> expr '<' expr :
   #binary_op{
     line=?line('$1'),
     type='<',
+    left='$1',
+    right='$3'
+  }.
+boolean -> expr '<=' expr :
+  #binary_op{
+    line=?line('$1'),
+    type='<=',
+    left='$1',
+    right='$3'
+  }.
+boolean -> expr '>=' expr :
+  #binary_op{
+    line=?line('$1'),
+    type='>=',
     left='$1',
     right='$3'
   }.

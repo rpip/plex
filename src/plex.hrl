@@ -13,11 +13,11 @@
 -record(record, {line, properties = []}).
 -record(binary_op, {line :: integer, type :: atom, left :: term, right :: term}).
 -record(unary_op, {line, type, arg}).
--record('let', {line, name, value, with_clause, in_clause}).
+-record('let', {line, name, value, with_block, in_block}).
 -record(list, {line, elements = []}).
 -record(project, {line, object, field}).
 -record(function, {line, args = [], body}).
--record('if', {line, condition, true_clause, false_clause}).
+-record('if', {line, condition, then_block, else_block}).
 -record(app, {line, applicant, args = []}).
 -record(range, {line, first, last}).
 -record(block_comment, {line, contents = []}).
