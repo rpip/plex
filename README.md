@@ -22,7 +22,7 @@ See the test directory for example code that works
 
 ```bash
 $ git clone https://github.com/rpip/plex.git && cd plex
-$ mix ecscript.build
+$ mix escript.build
 ```
 
 ## Run a file
