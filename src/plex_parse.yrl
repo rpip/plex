@@ -56,8 +56,8 @@ expr_list -> expr eol expr_list : ['$1'|'$3'].
 expr -> identifier : '$1'.
 expr -> arith   : '$1'.
 expr -> boolean : '$1'.
-expr -> string  : unwrap('$1').
-expr -> atom  : unwrap('$1').
+expr -> string  : '$1'.
+expr -> atom  : '$1'.
 expr -> number  : '$1'.
 expr -> record : '$1'.
 expr -> block_comment : '$1'.
@@ -156,11 +156,11 @@ elem  -> value  : '$1'.
 elem  -> function : '$1'.
 elem  -> app : '$1'.
 
-value -> list : unwrap('$1').
-value -> string : unwrap('$1').
-value -> number : unwrap('$1').
-value -> atom : unwrap('$1').
-value -> boolean : unwrap('$1').
+value -> list : '$1'.
+value -> string : '$1'.
+value -> number : '$1'.
+value -> atom : '$1'.
+value -> boolean : '$1'.
 value -> identifier : '$1'.
 
 %% Tuples
