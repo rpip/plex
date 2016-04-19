@@ -221,11 +221,11 @@ project -> project '.' identifier:
 
 %% Functions
 function -> 'fn' '->' expr :
-  #function{
-     line=?line('$1'),
-     args=[],
-     body='$3'
-    }.
+  build_ast_node('Function', #{
+     line => ?line('$1'),
+     args => [],
+     body => '$3'
+    }).
 function -> 'fn' args '->' expr :
   build_ast_node('Function', #{
      line => ?line('$1'),
