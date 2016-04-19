@@ -11,9 +11,10 @@ __doc__ is for attaching docs to objects
 -}
 -- todo states
 let todo = {
-  state = :active, items = [],
-  __new__ = this with state { state = :all, items= [] },
-   __doc__ = "Object to represent a task"
+  state = :active,
+  items = []
+--  __new__ = foo with state { state = :all, items= [] }
+--   __doc__ = "Object to represent a task"
 }
 
 let main =

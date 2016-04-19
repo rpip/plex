@@ -1,3 +1,1 @@
-let foo = 90
-
-[foo, 3, 6]
+let foo = 90 in {foo, 3, 6}

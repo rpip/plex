@@ -21,14 +21,6 @@ defmodule Plex.Compiler do
   end
 end
 
-defmodule Plex.Compiler.Env do
-  defstruct [
-    local_env: %{},
-    enclosing_env: %{},
-    builtin_env: %{},
-  ]
-end
-
 defmodule Plex.Compiler.Scope do
   @moduledoc """
   Manages the scope of the expressions. Internally, the scope is managed by a
@@ -42,8 +34,8 @@ defmodule Plex.Compiler.Scope do
   @type t :: map
 
   @doc "Creates a new environment"
-  @spec new :: Agent.on_start
-  def new(default_bindings \\ %{}) do
+  @spec init :: Agent.on_start
+  def init(default_bindings \\ %{}) do
     Agent.start_link(fn -> default_bindings end, name: __MODULE__)
   end
 

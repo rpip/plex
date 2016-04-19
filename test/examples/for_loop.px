@@ -6,10 +6,11 @@ let new_task = fn desc, id ->
 
 let tasks = ref []
 
-for x in 0..5 do  end
+for x in 0..5 do
+end
 
 for x in 0..5 do
-  tasks := list.append(!tasks,new_task("cook",x)
+  tasks := list.append(!tasks,new_task("cook",x))
 end
 
 for x in 0..5 do

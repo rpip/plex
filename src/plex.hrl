@@ -34,3 +34,13 @@
 unwrap({_Token, _Line, Value}) -> Value.
 
 to_tuple(Xs) -> erlang:list_to_tuple(Xs).
+
+build_ast_node(Type, Node) ->
+  'Elixir.Kernel':struct(list_to_atom("Elixir.Plex.Compiler.Node." ++ atom_to_list(Type)), Node).
+
+extract_child_line([head|tail]) ->
+    extract_child_line(head);
+extract_child_line(Line) ->
+    Line;
+extract_child_line(_) ->
+    nil.
