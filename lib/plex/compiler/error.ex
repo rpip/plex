@@ -1,6 +1,4 @@
 defmodule Plex.Compiler.SyntaxError do
-  @moduledoc "Exception raise for when lexing or parsing fails"
-
   @type t :: %__MODULE__{
             error: binary,
             location: %{file: binary, line: integer}
@@ -11,15 +9,40 @@ defmodule Plex.Compiler.SyntaxError do
     :location
   ]
 
-  def message(self) do
-   "#{self.error}. #{self.location.file}, #{self.location.line}"
+  def message(exception) do
+    "#{exception.error}. #{exception.location.file}, #{exception.location.line}"
   end
 end
 
 
-defmodule Plex.Compiler.RuntimeError do
-  @moduledoc "Exception raised for type checker errors, unbound values et"
+defmodule Plex.Compiler.CompileError do
+  @type t :: %__MODULE__{
+            error: binary,
+            location: %{file: binary, line: integer}
+        }
 
+  defexception [
+    :error,
+    :location
+  ]
+
+  def message(exception) do
+    "#{exception.error}. #{exception.location.file}, #{exception.location.line}"
+  end
+end
+
+
+defmodule Plex.CompileError.RuntimeError do
+  @moduledoc """
+  Runtime error exceptions. These errors will eventually be handled at compile
+  by the analyzer.
+
+  # runtime error types
+  - NumArgs
+  - UnboundVar
+  - NotApplicable
+  - TypeMisMatch
+  """
   @type t :: %__MODULE__{
             error: binary,
             location: %{file: binary, line: integer},
@@ -34,11 +57,7 @@ defmodule Plex.Compiler.RuntimeError do
     :meta
   ]
 
-  def message(self) do
-    """
-    #{self.error}. #{self.location.file}, #{self.location.line}
-    Scope: #{inspect self.scope}
-    Meta: #{inspect self.meta}
-    """
+  def message(exception) do
+    "#{exception.error}. #{exception.location.file}, #{exception.location.line}"
   end
 end

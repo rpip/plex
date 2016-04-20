@@ -3,8 +3,8 @@ defmodule Plex.Compiler.Node.App do
 
   @type t :: %__MODULE__{
             line: integer,
-            applicant: any,
-            args: list
+            applicant: Plex.Compiler.Node.t,
+            args: Plex.Compiler.Node.t
         }
 
   defstruct [

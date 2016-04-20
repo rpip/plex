@@ -21,49 +21,83 @@ defmodule Plex.Compiler do
   end
 end
 
-defmodule Plex.Compiler.Scope do
-  @moduledoc """
-  Manages the scope of the expressions. Internally, the scope is managed by a
-  process using Elixir Agent module which holds a dictionary of the bindings.
 
-  This enables parallel executions of expressions since they can both access the
-  easily, but this also potential of conflicts from multiple expressions
-  mutating the values.
-  """
+defmodule Plex.Compiler.Env do
+  @moduledoc "Key-Value bindings managed by a process"
 
-  @type t :: map
+  @type t :: %{outer: __MODULE__.t, env: map}
+  @type key :: atom
 
-  @doc "Creates a new environment"
-  @spec init :: Agent.on_start
-  def init(default_bindings \\ %{}) do
-    Agent.start_link(fn -> default_bindings end, name: __MODULE__)
+  @doc "Creates a new environment and returns the pid of the `Agent`"
+  @spec new(Env.t | nil, list) :: pid
+  def new(outer \\ nil, binds \\ []) do
+    {:ok, pid} = Agent.start_link(fn ->
+      %{outer: outer, env: %{}}
+    end)
+    bind_many(pid, binds)
+    pid
   end
 
-  @doc "Binds a value to a name in the scope"
-  def bind(name, value) do
-    Agent.update(__MODULE__, &Map.put(&1, name, value))
+  @doc "Binds key to value"
+  @spec bind(pid, key, any) :: :ok
+  def bind(pid, key, value) do
+    Agent.update(pid, fn map ->
+      %{map | :env => Map.put(map.env, key, value)}
+    end)
   end
 
-  @doc "Binds a list of expressions"
-  @spec bind_many(list) :: :ok
-  def bind_many(names) do
-    Enum.each(names, fn({k, v}) ->  bind(k, v) end)
+  @doc "Does multtiple bindings"
+  @spec bind_many(pid, [{key, any}] | map) :: :ok
+  def bind_many(pid, binds) do
+    Enum.each(binds, fn {k, v} -> bind(pid, k, v) end)
   end
 
-  @doc "Removes a binding from the environment"
-  @spec unbind(atom) :: :ok
-  def unbind(name) do
-    Agent.update(__MODULE__, &Map.drop(&1, [name]))
+  @doc "Removes the binding from the environment"
+  @spec unbind(pid, atom) :: :ok
+  def unbind(pid, key) do
+    Agent.update(pid, fn map ->
+      %{map | :env => Map.drop(map.env, [key])}
+    end)
   end
 
-  @doc "Searches for a binding by the name given and returns it if found"
-  @spec lookup_name(atom) :: any
-  def lookup_name(name) do
-    Agent.get(__MODULE__, &Map.get(&1, name))
+  @doc "Merges the second environment into the first one"
+  @spec merge(pid, map) :: :ok
+  def merge(pid, other_env) do
+    Agent.update(pid, fn map ->
+      %{map | :env => Map.merge(map.env, other_env)}
+    end)
   end
 
-  @doc "Returns all the bindingss"
-  def bindings do
-    Agent.get(__MODULE__, &(&1))
+  @doc "Returns the contents of the enviroment"
+  @spec bindings(pid) :: map
+  def bindings(pid) do
+    Agent.get(pid, fn map -> map.env end)
+  end
+
+  @doc "Returns value of key, otherwise raises an excepption"
+  @spec get!(pid, key) :: value :: no_return
+  def get!(pid, key) do
+    case find(pid, key) do
+      nil -> raise(Plex.Compiler.RuntimeError, error: "unbound variable #{key}")
+      env -> lookup_name(env, key)
+    end
+  end
+
+  defp find(pid, key) do
+    Agent.get(pid, fn map ->
+      case Map.has_key?(map.env, key) do
+        true -> pid
+        false -> map.outer && find(map.outer, key)
+      end
+    end)
+  end
+
+  defp lookup_name(pid, key) do
+    Agent.get(pid, fn map ->
+      case Map.fetch(map.env, key) do
+        {:ok, value} -> value
+        :error -> :not_found
+      end
+    end)
   end
 end

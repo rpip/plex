@@ -3,13 +3,13 @@ defmodule Plex.Compiler.Node.Function do
 
   @type t :: %__MODULE__{
             line: integer,
-            args: list,
+            params: list,
             body: any
         }
 
   defstruct [
     :line,
-    :args,
+    :params,
     :body
   ]
 end
