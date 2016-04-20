@@ -1,5 +1,16 @@
 -- Examples of function application
+{-
+# Evaluation of function application
 (fn x, y -> x + y) 1, 2;;
+app:
+ applicant:
+  func:
+    body: bin_op, :+, 1, 2
+    params= [x,y]
+args: [1,2]
+-}
+
+fn -> 1 + 2;;
 
 (fn x -> x + 10) 4;;
 
