@@ -32,6 +32,7 @@ Nonterminals
   function
   app
   args
+  params
   .
 
 Terminals
@@ -146,16 +147,19 @@ app -> expr '(' ')':
    }).
 app -> expr args :
   build_ast_node('App', #{
-    line => extract_child_line('$1'),
+    line => ?line('$1'),
     applicant => '$1',
     args => ['$2']
    }).
 app -> expr '(' args ')':
   build_ast_node('App', #{
-    line => extract_child_line('$1'),
+    line => ?line('$1'),
     applicant => '$1',
     args => ['$3']
    }).
+
+args -> params : '$1'.
+
 %% Lists
 list -> '[' ']'        :
   build_ast_node('List', #{
@@ -223,17 +227,18 @@ project -> project '.' identifier:
 function -> 'fn' '->' expr :
   build_ast_node('Function', #{
      line => ?line('$1'),
-     args => [],
+     params => [],
      body => '$3'
     }).
-function -> 'fn' args '->' expr :
+function -> 'fn' params '->' expr :
   build_ast_node('Function', #{
      line => ?line('$1'),
-     args => '$2',
+     params => '$2',
      body => '$4'
     }).
-args -> expr : ['$1'].
-args -> expr ',' args : ['$1'|'$3'].
+
+params -> expr : ['$1'].
+params -> expr ',' params : ['$1'|'$3'].
 
 %% FOR expressions
 for_expr -> 'for' expr 'in' expr 'do' 'end':
