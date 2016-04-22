@@ -2,7 +2,11 @@
 
 (fn x, y -> x + y) 1, 2;;
 
-{-# long comment here #-}
+--[[
+
+long comment here
+
+]]
 
 let maths = load('maths')
   in
@@ -17,4 +21,4 @@ let greeting = "Good morning" in fn -> print greeting;;
 
 x + 9
 
-{-# another long comment #-}
+--[[ another long comment ]]

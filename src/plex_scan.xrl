@@ -7,34 +7,44 @@
 
 Definitions.
 
-UpperCase     = [A-Z]
-LowerCase     = [a-z]
-Whitespace    = [\s\t]
-NewLine       = [\n\r]
-LineComment   = (\-\-).*
-BlockComment  = (\{\-)(.*\n?)+(\-})
-Digit         = (\+|-)?[0-9]+
-DoubleQuoted  = "(\\\^.|\\.|[^\"])*"
-SingleQuoted  = '(\\\^.|\\.|[^\'])*'
+U  = [A-Z]
+L  = [a-z]
+W  = [\s\t]
+N  = [\n\r]
+D  = (\+|-)?[0-9]+
+DQ = "(\\\^.|\\.|[^\"])*"
+SQ = '(\\\^.|\\.|[^\'])*'
 
 Rules.
 
 %% Identifier
-({LowerCase}|_)({UpperCase}|{LowerCase}|{Digit}|_|\')* : build_identifier(TokenChars, TokenLine).
+({L}|_)({U}|{L}|{D}|_|\')* : build_identifier(TokenChars, TokenLine).
 
 %% Atom
-\:({UpperCase}|{LowerCase}|_)({UpperCase}|{Digit}|{LowerCase}|_)* : build_atom(TokenChars, TokenLine, TokenLen).
-\:{DoubleQuoted} : build_quoted_atom(TokenChars, TokenLine, TokenLen).
-\:{SingleQuoted} : build_quoted_atom(TokenChars, TokenLine, TokenLen).
+\:({U}|{L}|_)({U}|{D}|{L}|_)* : build_atom(TokenChars, TokenLine, TokenLen).
+\:{DQ} : build_quoted_atom(TokenChars, TokenLine, TokenLen).
+\:{SQ} : build_quoted_atom(TokenChars, TokenLine, TokenLen).
 
 %% Numbers and Strings
-{Digit}+\.{Digit}+ : build_float(TokenChars, TokenLine).
-{Digit}+           : build_integer(TokenChars, TokenLine).
-{DoubleQuoted}     : build_string(TokenChars, TokenLine).
-{SingleQuoted}     : build_string(TokenChars, TokenLine).
+{D}+\.{D}+ : build_float(TokenChars, TokenLine).
+{D}+ :       build_integer(TokenChars, TokenLine).
+{DQ} :       build_string(TokenChars, TokenLine).
+{SQ} :       build_string(TokenChars, TokenLine).
 
 %% Ignored
-({LineComment}|{BlockComment}|{Whitespace}+|{NewLine}) : skip_token.
+({W}+|{N}) : skip_token.
+
+%% Comments, either -- or --[[ ]].
+%% Source: https://github.com/rvirding/luerl/blob/develop/src/luerl_scan.xrl
+%%--(\[([^[\n].*|\[\n|[^[\n].*|\n) : skip_token.
+--\n :		skip_token.
+--[^[\n].* :	skip_token.
+--\[\n :	skip_token.
+--\[[^[\n].* :	skip_token.
+%% --aa([^b]|b[^b])*b+b
+--\[\[([^]]|\][^]])*\]+\] : skip_token.
+--\[\[([^]]|\][^]])* : {error,"unfinished long comment"}.
+
 
 \( : {token, {'(', TokenLine}}.
 \) : {token, {')', TokenLine}}.
@@ -58,7 +68,7 @@ Rules.
 \->  : {token, {'->', TokenLine}}.
 \.\. : {token, {'..', TokenLine}}.
 := : {token, {':=', TokenLine}}.
-!  : {token, {'!', TokenLine}}.
+! : {token, {'!', TokenLine}}.
 | : {token, {'|', TokenLine}}.
 <\= : {token, {'<=', TokenLine}}.
 >=  : {token, {'>=', TokenLine}}.
@@ -67,7 +77,7 @@ Erlang code.
 
 build_identifier(Chars, Line) ->
     Atom = list_to_atom(Chars),
-    case reserved_word(Atom) of
+    case is_keyword(Atom) of
         true -> {token, {Atom, Line}};
         false -> {token, {identifier, Line, Atom}}
     end.
@@ -104,43 +114,43 @@ to_unicode(Chars) ->
     Str = string:sub_string(Chars, 2, length(Chars) - 1),
     'Elixir.String.Chars':to_string(Str).
 
-reserved_word('and') ->
+is_keyword('and') ->
     true;
-reserved_word('else') ->
+is_keyword('else') ->
     true;
-reserved_word('fn') ->
+is_keyword('fn') ->
     true;
-reserved_word('if') ->
+is_keyword('if') ->
     true;
-reserved_word('in') ->
+is_keyword('in') ->
     true;
-reserved_word('let') ->
+is_keyword('let') ->
     true;
-reserved_word('not') ->
+is_keyword('not') ->
     true;
-reserved_word('or') ->
+is_keyword('or') ->
     true;
-reserved_word('then') ->
+is_keyword('then') ->
     true;
-reserved_word('this') ->
+is_keyword('this') ->
     true;
-reserved_word('true') ->
+is_keyword('true') ->
     true;
-reserved_word('false') ->
+is_keyword('false') ->
     true;
-reserved_word('nil') ->
+is_keyword('nil') ->
     true;
-reserved_word('with') ->
+is_keyword('with') ->
     true;
-reserved_word('for') ->
+is_keyword('for') ->
     true;
-reserved_word('do') ->
+is_keyword('do') ->
     true;
-reserved_word('end') ->
+is_keyword('end') ->
     true;
-reserved_word('while') ->
+is_keyword('while') ->
     true;
-reserved_word('case') ->
+is_keyword('case') ->
     true;
-reserved_word(_) ->
+is_keyword(_) ->
     false.

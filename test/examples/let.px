@@ -1,19 +1,10 @@
-{-
 let x = 10 with func,
-    y = x + 10 in e2
+    y = x + 10 in e2;
 
-let x = 10 in let y = x + 2 in x + y
+let x = 10 in let y = x + 2 in x + y;
 
 -- multiple bindings with extensions
    let task = {name=nil, id=nil, completed=false} in
-     let x = 6 with fn -> 10, y = task with {}
+     let x = 6 with fn -> 10, y = task with {};
 
--}
-
-let x = 3 in x + 3
-
- 5 + 4
-
-
--- let bidnings in expr eol
--- let bindings;
+let x = 3 in x + 3;
