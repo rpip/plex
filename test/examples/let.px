@@ -1,7 +1,16 @@
-let x = 10 with func,
-    y = x + 10 in e2;
+let x = 10 with fn num -> num + 10 ,
+    y = x + 10 in e2(x, y);
 
 let x = 10 in let y = x + 2 in x + y;
+
+let person = {
+  name=nil,
+  age=nil,
+  sex=nil,
+  location=nil
+};
+
+let kirk = person with {name="Kirk", sex=:male};
 
 -- multiple bindings with extensions
    let task = {name=nil, id=nil, completed=false} in

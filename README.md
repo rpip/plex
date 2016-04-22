@@ -1,10 +1,13 @@
 # Plex
 
-Plex is a simple language, like Lua with some Ocaml feels. It is based on a notion of objects as extensible records. And since "everything is an object", a value may behave simultaneously as an integer, boolean, or a function.
+Plex is a simple programming language based on a notion of objects as extensible records. And since "everything is an object", a binding may behave simultaneously as a value or a function application.
 
-It's inspired by [Andrej Bauer's Boa](http://www.andrej.com/plzoo/html/boa.html), but Plex aims to be more functional. Plex variabes are actually bindings, so it defaults to immutability. As in Ocaml, a list is an immutable, finite sequence of elements of the same type. As in Ocaml, there are imperative programming constructs such as `for` and `while` loops and also `ref` for getting a reference to mutable data.
+### Inspirations:
 
-Plex supports eager evaluation, optional lazy evaluation, first-class functions, and dynamic types. Where possible, Plex tries to check the integrity of programs statically -- that is, at compile time.
+- [Andrej Bauer's Boa](http://www.andrej.com/plzoo/html/boa.html)
+- Ocaml
+- Lua
+- Haskell
 
 [![Build Status](https://travis-ci.org/rpip/plex.svg?branch=master)](https://travis-ci.org/rpip/plex)
 
