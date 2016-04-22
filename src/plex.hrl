@@ -17,9 +17,9 @@ to_tuple(Xs) -> erlang:list_to_tuple(Xs).
 build_ast_node(Type, Node) ->
   'Elixir.Kernel':struct(list_to_atom("Elixir.Plex.Compiler.Node." ++ atom_to_list(Type)), Node).
 
-extract_line({_, Line,_} = Node) ->
+extract_line({_, Line,_} = _Node) ->
     Line;
-extract_line({_, Line} = Node) ->
+extract_line({_, Line} = _Node) ->
     Line;
 extract_line(Node) when is_map(Node) ->
     maps:get(line, Node);

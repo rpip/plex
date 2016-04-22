@@ -1,0 +1,10 @@
+{-
+In lexical scoping, the first declaration of x, namely x = 1, is used for the
+value of x in the body of f when evaluating f 1, because this is the one that
+was in scope when f was declared; thus the result is 2.
+-}
+-- result is 2
+let x = 1 in
+  let f = fn y -> y + x in
+    let x = 3 in
+      f 1

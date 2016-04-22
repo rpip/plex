@@ -3,14 +3,14 @@ defmodule Plex.Compiler.Node.For do
 
   @type t :: %__MODULE__{
             line: integer,
-            var: atom,
+            term: atom,
             generator: any,
             body: any
         }
 
   defstruct [
     :line,
-    :var,
+    :term,
     :generator,
     :body
   ]

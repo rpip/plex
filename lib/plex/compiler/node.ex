@@ -2,20 +2,22 @@ defprotocol Plex.Compiler.Node do
   @moduledoc "Protocol for node evaluation"
 
   alias Plex.Compiler.Node.{
-            If, For, BlockComment,
-            BinaryOp, UnaryOp, App, Case, Deref, For, Function,
-            Interpolate, Project, Let, List, Tuple, Range,
-            Record, While, UpdateRef
+            Let, If, For,
+            While, BinaryOp,
+            UnaryOp, App,
+            Case, Function,
+            Interpolate, Project,
+            List, Tuple,
+            Range, Record,
+            UpdateRef, Deref
   }
 
   @type t :: If.t
             | For.t
-            | BlockComment.t
             | BinaryOp.t
             | UnaryOp.t
             | App.t
             | Case.t
-            | Deref.t
             | For.t
             | Function.t
             | Interpolate.t
@@ -26,6 +28,7 @@ defprotocol Plex.Compiler.Node do
             | Range.t
             | Record.t
             | While.t
+            | Deref.t
             | UpdateRef.t
 
 

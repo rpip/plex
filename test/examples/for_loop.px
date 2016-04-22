@@ -1,22 +1,18 @@
 -- return a copy of the task model with updated fields
 let new_task = fn desc, id ->
   task with { description = desc, id = id }
-;;
+;
 
-
-let tasks = ref []
-
-for x in 0..5 do
-end
+let tasks = ref [];
 
 for x in 0..5 do
   tasks := list.append(!tasks,new_task("cook",x))
-end
+end;
 
 for x in 0..5 do
   tasks := list.append(foo,x)
-end
+end;
 
 for task in tasks do
  println "#{task.id}: #{task.description}"
-end
+end;

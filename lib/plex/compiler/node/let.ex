@@ -1,19 +1,16 @@
 defmodule Plex.Compiler.Node.Let do
   @moduledoc "Let bindings"
+  # bindings can be {term, value, with_block} OR {term, value}
 
   @type t :: %__MODULE__{
             line: integer,
-            name: atom,
-            value: any,
-            with_block: any,
+            bindings: atom,
             in_block: any,
         }
 
   defstruct [
     :line,
-    :name,
-    :value,
-    :with_block,
+    :bindings,
     :in_block
   ]
 end

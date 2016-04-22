@@ -1,0 +1,5 @@
+let x = ref 3 in
+    let y = !x in
+        (x := !x + 1);
+        y + !x
+    ;;

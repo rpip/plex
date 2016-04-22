@@ -15,33 +15,17 @@ defmodule Plex.Compiler.SyntaxError do
 end
 
 
-defmodule Plex.Compiler.CompileError do
-  @type t :: %__MODULE__{
-            error: binary,
-            location: %{file: binary, line: integer}
-        }
-
-  defexception [
-    :error,
-    :location
-  ]
-
-  def message(exception) do
-    "#{exception.error}. #{exception.location.file}, #{exception.location.line}"
-  end
-end
-
-
-defmodule Plex.CompileError.RuntimeError do
+defmodule Plex.CompileError.CompileError do
   @moduledoc """
   Runtime error exceptions. These errors will eventually be handled at compile
   by the analyzer.
 
-  # runtime error types
+  # error types
   - NumArgs
   - UnboundVar
   - NotApplicable
   - TypeMisMatch
+  - MatchError
   """
   @type t :: %__MODULE__{
             error: binary,

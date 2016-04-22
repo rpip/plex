@@ -1,14 +1,13 @@
 -- Examples of function application
-{-
-# Evaluation of function application
+
 (fn x, y -> x + y) 1, 2;;
-app:
- applicant:
-  func:
-    body: bin_op, :+, 1, 2
-    params= [x,y]
-args: [1,2]
--}
+
+{-# long comment here #-}
+
+let maths = load('maths')
+  in
+    {maths.sum([1,2,3]), maths.add(fn -> x + y, 10), (fn -> x + y) 10}
+;;
 
 fn -> 1 + 2;;
 
@@ -16,9 +15,6 @@ fn -> 1 + 2;;
 
 let greeting = "Good morning" in fn -> print greeting;;
 
-let maths = load('maths')
-  in
-    maths.sum [1,2,3]
-    (fn -> x + y), 10
-    maths.add fn -> x + y, 10
-;;
+x + 9
+
+{-# another long comment #-}

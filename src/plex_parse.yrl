@@ -20,27 +20,35 @@ Nonterminals
   pattern
   arith
   record
-  field
-  fields
+  bindings
+  binding
   list
   elems
   elem
-  value
   boolean
   number
   project
   function
-  app
+  apply
   args
   params
+  unary_op
+  comp_op
+  bool_op
+  mult_op
+  add_op
+  ref_update
+  deref
+  dereferable
+  applicable
   .
 
 Terminals
 
   '[' ']' '+' '-' '*' '/' '%' ',' '=' ':=' '{' '}' '(' ')' '<' '>' '==' '!='
   '..' 'not' 'let' 'with' 'in' '->' '.' 'fn' 'if' 'then' 'else' '!' '<=' '>='
-  'and' 'or' 'for' 'do' 'while' 'end' 'case' true false integer
-  float string nil identifier eol atom block_comment string_interpolate
+  'and' 'or' 'for' 'do' 'while' 'end' 'case' true false integer float string
+  nil identifier eol atom string_interpolate
   .
 
 Rootsymbol root.
@@ -56,51 +64,91 @@ Nonassoc 400 '==' '!=' '>=' '<=' '>' '<'.
 
 
 root -> expr_list : '$1'.
-root -> '$empty' : [].
 
-%% Expression lists (eol delimited)
 expr_list -> eol : [].
 expr_list -> expr : ['$1'].
 expr_list -> expr eol : ['$1'].
-expr_list -> eol expr_list : '$2'.
+expr_list -> eol expr_list : ['$2'].
 expr_list -> expr eol expr_list : ['$1'|'$3'].
 
-expr -> identifier : '$1'.
 expr -> arith   : '$1'.
 expr -> boolean : '$1'.
 expr -> string  : '$1'.
 expr -> atom  : '$1'.
 expr -> number  : '$1'.
 expr -> record : '$1'.
-expr -> block_comment : '$1'.
 expr -> list : '$1'.
 expr -> if_expr : '$1'.
 expr -> let_expr : '$1'.
-expr -> project : '$1'.
-expr -> function : '$1'.
-expr -> app : '$1'.
+expr -> apply : '$1'.
+
+expr -> applicable: '$1'.
+applicable -> project : '$1'.
+applicable -> identifier : '$1'.
+applicable -> function : '$1'.
+applicable -> '(' applicable ')': '$2'.
+
+
 expr -> for_expr : '$1'.
 expr -> while_expr : '$1'.
 expr -> case_expr : '$1'.
 expr -> range_expr : '$1'.
 expr -> '(' expr ')' : '$2'.
+expr -> ref_update : '$1'.
+expr -> deref : '$1'.
 expr -> string_interpolate :
   build_ast_node('Interpolate', #{
      line => ?line('$1'),
      body => '$1'
     }).
+%% Let bindings
+let_expr -> 'let' bindings :
+  build_ast_node('Let', #{
+     line => ?line('$1'),
+     bindings => '$2'
+    }).
+let_expr -> 'let' bindings 'in' expr :
+  build_ast_node('Let', #{
+     line     => ?line('$1'),
+     bindings => '$2',
+     in_block => '$4'
+    }).
+
 %% references
-expr -> '!' identifier :
+deref -> '!' dereferable :
   build_ast_node('Deref', #{
      line => ?line('$1'),
      name => '$2'
   }).
-expr -> identifier ':=' expr :
+ref_update -> dereferable ':=' expr :
   build_ast_node('UpdateRef', #{
      line  => ?line('$1'),
      name  => '$1',
      value => '$3'
   }).
+dereferable -> identifier : '$1'.
+dereferable -> project : '$1'.
+
+%% Applications
+apply -> applicable '(' ')':
+  build_ast_node('Apply', #{
+    line => ?line('$1'),
+    applicant => '$1'
+   }).
+apply -> applicable args :
+  build_ast_node('Apply', #{
+    line => ?line('$1'),
+    applicant => '$1',
+    args => ['$2']
+   }).
+apply -> applicable '(' args ')':
+  build_ast_node('Apply', #{
+    line => ?line('$1'),
+    applicant => '$1',
+    args => ['$3']
+   }).
+
+args -> params : '$1'.
 
 %% range
 range_expr -> integer '..' integer :
@@ -109,56 +157,6 @@ range_expr -> integer '..' integer :
      first =>'$1',
      last  => '$3'
     }).
-
-%% Let bindings
-let_expr -> 'let' identifier '=' expr  :
-  build_ast_node('Let', #{
-     line => ?line('$1'),
-     name => '$2',
-     value => '$4'
-    }).
-let_expr -> 'let' identifier '=' expr 'with' expr :
-  build_ast_node('Let', #{
-     line => ?line('$1'),
-     name => '$2',
-     value => '$4',
-     with_block => '$6'
-  }).
-let_expr -> 'let' identifier '=' expr 'in' expr :
-  build_ast_node('Let', #{
-     line     => ?line('$1'),
-     name     => '$2',
-     value    => '$4',
-     in_block => '$6'
-    }).
-let_expr -> 'let' identifier '=' expr 'with' expr 'in' expr:
-  build_ast_node('Let', #{
-     line => ?line('$1'),
-     name => '$2',
-     value => '$4',
-     with_block => '$6',
-     in_block => '$8'
-  }).
-%% Call expressions
-app -> expr '(' ')':
-  build_ast_node('App', #{
-    line => ?line('$1'),
-    applicant => '$1'
-   }).
-app -> expr args :
-  build_ast_node('App', #{
-    line => ?line('$1'),
-    applicant => '$1',
-    args => ['$2']
-   }).
-app -> expr '(' args ')':
-  build_ast_node('App', #{
-    line => ?line('$1'),
-    applicant => '$1',
-    args => ['$3']
-   }).
-
-args -> params : '$1'.
 
 %% Lists
 list -> '[' ']'        :
@@ -175,16 +173,17 @@ list -> '[' elems ']'  :
 elems -> elem       : ['$1'].
 elems -> elem ',' elems : ['$1'|'$3'].
 elem  -> record : '$1'.
-elem  -> value  : '$1'.
 elem  -> function : '$1'.
-elem  -> app : '$1'.
-
-value -> list : '$1'.
-value -> string : '$1'.
-value -> number : '$1'.
-value -> atom : '$1'.
-value -> boolean : '$1'.
-value -> identifier : '$1'.
+elem  -> apply : '$1'.
+elem  -> list : '$1'.
+elem  -> string : '$1'.
+elem  -> number : '$1'.
+elem  -> atom : '$1'.
+elem  -> boolean : '$1'.
+elem  -> project : '$1'.
+elem  -> arith : '$1'.
+elem  -> deref : '$1'.
+elem  -> identifier : '$1'.
 
 %% Tuples
 record -> '{' elems '}'       :
@@ -195,26 +194,21 @@ record -> '{' elems '}'       :
 
 %% Records
 record -> '{' '}' : build_ast_node('Record', #{line => ?line('$1')}).
-record -> '{' fields '}'       :
+record -> '{' bindings '}' :
   build_ast_node('Record', #{
      line => ?line('$1'),
      properties => '$2'
     }).
-field  -> identifier '=' expr  : {'$1', '$3'}.
-fields -> field                : ['$1'].
-fields -> field ',' fields     :['$1'|'$3'].
+binding  -> identifier '=' expr  : {'$1', '$3'}.
+binding  -> identifier '=' expr 'with' expr : {'$1', '$3', '$5'}.
+bindings -> binding  : ['$1'].
+bindings -> binding ',' bindings : ['$1'|'$3'].
 
 project -> identifier '.' identifier :
   build_ast_node('Project', #{
     line   => ?line('$1'),
     object => '$1',
     field  => '$3'
-  }).
-project -> '(' expr ')' '.' identifier:
-  build_ast_node('Project', #{
-    line   => ?line('$1'),
-    object => '$2',
-    field  => '$5'
   }).
 project -> project '.' identifier:
   build_ast_node('Project', #{
@@ -236,21 +230,14 @@ function -> 'fn' params '->' expr :
      params => '$2',
      body => '$4'
     }).
-
 params -> expr : ['$1'].
 params -> expr ',' params : ['$1'|'$3'].
 
 %% FOR expressions
-for_expr -> 'for' expr 'in' expr 'do' 'end':
-  build_ast_node('For', #{
-     line => ?line('$1'),
-     var  => '$2',
-     container => '$4'
-    }).
 for_expr -> 'for' expr 'in' expr 'do' expr 'end':
   build_ast_node('For', #{
      line => ?line('$1'),
-     var => '$2',
+     term => '$2',
      generator => '$4',
      body => '$6'
     }).
@@ -276,6 +263,7 @@ clauses -> clause : ['$1'].
 clauses -> clause eol clauses : ['$1'|'$3'].
 clauses -> clause clauses : ['$1'|'$2'].
 
+%% Only pattern match on the following
 pattern -> atom       : '$1'.
 pattern -> string     : '$1'.
 pattern -> list       : '$1'.
@@ -284,9 +272,10 @@ pattern -> identifier : '$1'.
 pattern -> number     : '$1'.
 pattern -> range_expr : '$1'.
 
+
 %% IF conditions
 if_expr -> 'if' expr 'then' expr :
-  build_ast_node('IF', #{
+  build_ast_node('If', #{
      line => ?line('$1'),
      condition => '$2',
      then_block => '$4'
@@ -300,105 +289,37 @@ if_expr -> 'if' expr 'then' expr 'else' expr :
     }).
 
 %% Arithmetic and boolean  operations
-arith -> expr '+' expr	:
-  build_ast_node('BinaryOp', #{
-    line  => ?line('$1'),
-    type  => 'plus',
-    left  => '$1',
-    right => '$3'
-   }).
-
-arith -> expr '-' expr	:
-  build_ast_node('BinaryOp', #{
-    line => ?line('$1'),
-    type => 'sub',
-    left => '$1',
-    right => '$3'
-  }).
-
-arith -> expr '*' expr	:
-  build_ast_node('BinaryOp', #{
-    line => ?line('$1'),
-    type => 'mul',
-    left => '$1',
-    right => '$3'
-  }).
-
-arith -> expr '/' expr	:
-  build_ast_node('BinaryOp', #{
-    line => ?line('$1'),
-    type => 'div',
-    left => '$1',
-    right => '$3'
-  }).
-
-arith -> expr '%' expr :
-   build_ast_node('BinaryOp', #{
-     line => ?line('$1'),
-     type => 'rem',
-     left => '$1',
-     right => '$3'
-   }).
-
-boolean -> 'not' expr :
+boolean -> unary_op expr :
   build_ast_node('UnaryOp', #{
     line => ?line('$1'),
     type => ?op('$1'),
     arg  => '$2'
    }).
-boolean -> expr '>' expr   :
+arith -> expr add_op expr	:
+  build_ast_node('BinaryOp', #{
+    line  => ?line('$1'),
+    type  => ?op('$2'),
+    left  => '$1',
+    right => '$3'
+   }).
+arith -> expr mult_op expr :
+   build_ast_node('BinaryOp', #{
+     line => ?line('$1'),
+     type => ?op('$2'),
+     left => '$1',
+     right => '$3'
+   }).
+boolean -> expr comp_op expr   :
  build_ast_node('BinaryOp', #{
     line => ?line('$1'),
-    type => '>',
+    type => ?op('$2'),
     left => '$1',
     right => '$3'
    }).
-boolean -> expr '<' expr :
+boolean -> expr bool_op expr  :
   build_ast_node('BinaryOp', #{
     line  => ?line('$1'),
-    type  => '<',
-    left  => '$1',
-    right => '$3'
-  }).
-boolean -> expr '<=' expr :
-  build_ast_node('BinaryOp', #{
-    line  => ?line('$1'),
-    type  => '<=',
-    left  => '$1',
-    right => '$3'
-  }).
-boolean -> expr '>=' expr :
-  build_ast_node('BinaryOp', #{
-    line  => ?line('$1'),
-    type  => '>=',
-    left  => '$1',
-    right => '$3'
-  }).
-boolean -> expr '==' expr :
-  build_ast_node('BinaryOp', #{
-    line  => ?line('$1'),
-    type  => '==',
-    left  => '$1',
-    right => '$3'
-  }).
-boolean -> expr '!=' expr :
-  build_ast_node('BinaryOp', #{
-     line  => ?line('$1'),
-     type  => '!=',
-     left  => '$1',
-     right => '$3'
-    }).
-boolean -> expr 'and' expr :
-  build_ast_node('BinaryOp', #{
-    line  => ?line('$1'),
-    type  => 'and',
-    left  => '$1',
-    right => '$3'
-  }).
-boolean -> expr 'or' expr  :
-  build_ast_node('BinaryOp', #{
-    line  => ?line('$1'),
-    type  => 'or',
+    type  => ?op('$2'),
     left  => '$1',
     right => '$3'
   }).
@@ -411,6 +332,31 @@ boolean -> nil   : '$1'.
 %% Numbers
 number -> float   : '$1'.
 number -> integer : '$1'.
+
+%% Boolean operators
+bool_op -> 'and' : '$1'.
+bool_op -> 'or'  : '$1'.
+
+%% Comparison operators
+comp_op -> '==' : '$1'.
+comp_op -> '!=' : '$1'.
+comp_op -> '>'  : '$1'.
+comp_op -> '<'  : '$1'.
+comp_op -> '>=' : '$1'.
+comp_op -> '<=' : '$1'.
+comp_op -> '=' : '$1'.
+
+%% Addition operators
+add_op -> '+'  : '$1'.
+add_op -> '-'  : '$1'.
+
+%% Multiplication operators
+mult_op -> '*' : '$1'.
+mult_op -> '/' : '$1'.
+mult_op -> '%' : '$1'.
+
+%% Unary operators
+unary_op -> 'not' : '$1'.
 
 Erlang code.
 

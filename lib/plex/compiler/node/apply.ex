@@ -1,4 +1,4 @@
-defmodule Plex.Compiler.Node.App do
+defmodule Plex.Compiler.Node.Apply do
   @moduledoc "Function application"
 
   @type t :: %__MODULE__{

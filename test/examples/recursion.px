@@ -1,0 +1,31 @@
+{-
+some examples of list destruction
+x::y = [1,2,3] GIVES x = 1, y = [2,3]
+
+x,y::xs = [1,2,3] GIVES x = 1, y = 2, xs = [3]
+
+x,y::_ = [1,2,3]  GIVES x = 1, y = 2
+-}
+
+-- straightforward recursion
+let sum = fn s ->
+    case s do
+        [] -> 0;
+        x::xs -> x + sum xs
+    end;;
+
+-- tail recursive
+let sum = fn s ->
+  let sum' = fn s, a ->
+    case s do
+        [] -> a;
+        x::xs -> sum' xs, (a + x) in
+    sum' s 0
+
+-- using continuations
+let sum = fn s ->
+  let sum' = fn s, k ->
+    case s do
+        [] -> k 0;
+        x,y::xs -> sum' xs, (fn a -> k (x + a)) in
+  sum' s, (fn x -> x)

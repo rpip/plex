@@ -21,6 +21,31 @@ defmodule Plex.Compiler do
   end
 end
 
+defmodule Plex.Types.Ref do
+  @moduledoc "Mutable variable"
+
+  alias __MODULE__
+
+  @type t :: %Ref{contents: any}
+
+  defstruct [:contents]
+
+  @spec new(any) :: pid
+  def new(value) do
+    Agent.start_link(fn -> %Ref{contents: value} end)
+  end
+
+  @spec deref(pid) :: Ref.t
+  def deref(pid) do
+    Agent.get(pid, fn ref -> ref end)
+  end
+
+  @spec update(pid, any) :: Ref.t
+  def update(pid, new_val) do
+    Agent.update(pid, fn ref -> %{ref | contents: new_val} end)
+  end
+end
+
 
 defmodule Plex.Compiler.Env do
   @moduledoc "Key-Value bindings managed by a process"
@@ -83,7 +108,7 @@ defmodule Plex.Compiler.Env do
     end
   end
 
-  defp find(pid, key) do
+  def find(pid, key) do
     Agent.get(pid, fn map ->
       case Map.has_key?(map.env, key) do
         true -> pid

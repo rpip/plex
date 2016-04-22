@@ -20,7 +20,7 @@ SingleQuoted  = '(\\\^.|\\.|[^\'])*'
 Rules.
 
 %% Identifier
-({LowerCase}|_)({UpperCase}|{LowerCase}|{Digit}|_)* : build_identifier(TokenChars, TokenLine).
+({LowerCase}|_)({UpperCase}|{LowerCase}|{Digit}|_|\')* : build_identifier(TokenChars, TokenLine).
 
 %% Atom
 \:({UpperCase}|{LowerCase}|_)({UpperCase}|{Digit}|{LowerCase}|_)* : build_atom(TokenChars, TokenLine, TokenLen).
@@ -33,11 +33,8 @@ Rules.
 {DoubleQuoted}     : build_string(TokenChars, TokenLine).
 {SingleQuoted}     : build_string(TokenChars, TokenLine).
 
-%% Block comment
-{BlockComment} : build_block_comment(TokenChars, TokenLine, TokenLen).
-
 %% Ignored
-({LineComment}|{Whitespace}+|{NewLine}) : skip_token.
+({LineComment}|{BlockComment}|{Whitespace}+|{NewLine}) : skip_token.
 
 \( : {token, {'(', TokenLine}}.
 \) : {token, {')', TokenLine}}.
@@ -102,12 +99,6 @@ build_atom(Chars, Line, Len) ->
 build_quoted_atom(Chars, Line, Len) ->
     String = lists:sublist(Chars, 2, Len - 2),
     build_atom(String, Line, Len).
-
-build_block_comment(Chars, Line, Len) ->
-    String = lists:sublist(Chars, 3, Len - 4),
-    String1 = 'Elixir.String.Chars':to_string(String),
-    String2 = 'Elixir.String':strip(String1),
-    {token, {block_comment, Line, String2}}.
 
 to_unicode(Chars) ->
     Str = string:sub_string(Chars, 2, length(Chars) - 1),
