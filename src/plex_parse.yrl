@@ -200,7 +200,8 @@ record -> '{' bindings '}' :
      properties => '$2'
     }).
 binding  -> identifier '=' expr  : {'$1', '$3'}.
-binding  -> identifier '=' expr 'with' expr : {'$1', '$3', '$5'}.
+binding  -> identifier '=' expr 'with' record : {'$1', '$3', '$5'}.
+binding  -> identifier '=' expr 'with' function : {'$1', '$3', '$5'}.
 bindings -> binding  : ['$1'].
 bindings -> binding ',' bindings : ['$1'|'$3'].
 

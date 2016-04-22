@@ -1,6 +1,6 @@
 -- return a copy of the task model with updated fields
 let new_task = fn desc, id ->
-  task with { description = desc, id = id }
+  task with {description = desc, id = id}
 ;
 
 let tasks = ref [];
