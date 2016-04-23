@@ -49,7 +49,7 @@ defmodule Plex.Repl do
     io(pid, 1, "plex")
   end
 
-  defp repl(env) do
+  defp repl(env, cache \\ "") do
     receive do
       {from, :tty_sl_exit} ->
         send(from, :tty_sl_exit)
@@ -67,17 +67,32 @@ defmodule Plex.Repl do
         {:ok, ast} = Plex.Compiler.parse(tokens)
         Enum.each(ast, fn(node) -> IO.puts inspect(node) end)
         repl(env)
-      {_from, {:eval, code}} ->
+      {from, {:eval, code}} ->
         # TODO: analyze and evaluate ast
-        # Plex.Compiler.Parser.eval(ast)
-        result = Plex.Compiler.lex(code) |> Plex.Compiler.parse
-        IO.puts (inspect result)
-        repl(env)
+        code = cache <> code
+        tokens = Plex.Compiler.lex(code)
+        result = Plex.Compiler.parse(tokens)
+        case result do
+          {:ok, ast} ->
+            send(from, {:ok, ast})
+            repl(env)
+          # incomplete input
+          {:error, {_, :plex_parse, [_reason,[]]}} ->
+            send(from, :do_input)
+            repl(env, code <> " ")
+          {:error, _} ->
+            send(from, {:error, result})
+            repl(env)
+        end
     end
   end
 
+  defp prompt(counter, prefix) do
+    "#{prefix} (#{counter})> "
+  end
+
   defp io(repl_id, counter, prefix) do
-    case IO.gets("#{prefix} (#{counter})> ") do
+    case IO.gets(prompt(counter, prefix)) do
       :eof ->
         send(repl_id, :exit)
       {:error, reason} ->
@@ -106,7 +121,17 @@ defmodule Plex.Repl do
               io(repl_id, counter + 1, prefix)
             else
               send(repl_id, {self, {:eval, code}})
-              io(repl_id, counter + 1, prefix)
+              receive do
+                {:ok, result} ->
+                  IO.puts (inspect result)
+                  io(repl_id, counter + 1, prefix)
+                :do_input ->
+                  # TODO: change prefix to indicate expecting more input
+                  io(repl_id, counter, prefix)
+                {:error, result} ->
+                 IO.puts (inspect result)
+                 io(repl_id, counter + 1, prefix)
+              end
             end
         end
     end
