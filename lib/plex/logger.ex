@@ -2,7 +2,7 @@ defmodule Plex.Logger do
   @moduldoc "Utilities for logging"
 
   def info(str) do
-    log(colourize("Info"), str)
+    IO.puts colourize(str, :yellow)
   end
 
   def warn(str) do
@@ -14,7 +14,7 @@ defmodule Plex.Logger do
   end
 
   def error(str) do
-    log(colourize("[error]", :red), str)
+    IO.puts colourize(str, :red)
   end
 
   defp log(prefix, str, sep \\ ":") do

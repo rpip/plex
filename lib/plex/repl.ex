@@ -6,6 +6,7 @@ defmodule Plex.Repl do
   /lex - Tokenize code
   /pp  - Tokenize and parse code
   """
+  import Plex.Logger, only: [info: 1, error: 1]
 
   def run do
     if tty_works? do
@@ -60,18 +61,16 @@ defmodule Plex.Repl do
         repl(env)
       {_from, {:lex, code}} ->
         tokens = Plex.Compiler.lex(code)
-        Enum.each(tokens, fn(token) -> IO.puts inspect(token) end)
+        Enum.each(tokens, fn(token) -> info(inspect(token)) end)
         repl(env)
       {_from, {:pp, code}} ->
-        tokens = Plex.Compiler.lex(code)
-        {:ok, ast} = Plex.Compiler.parse(tokens)
-        Enum.each(ast, fn(node) -> IO.puts inspect(node) end)
+        result = Plex.Compiler.parse!(code)
+        info(inspect(result))
         repl(env)
       {from, {:eval, code}} ->
         # TODO: analyze and evaluate ast
         code = cache <> code
-        tokens = Plex.Compiler.lex(code)
-        result = Plex.Compiler.parse(tokens)
+        result = Plex.Compiler.parse!(code)
         case result do
           {:ok, ast} ->
             send(from, {:ok, ast})
@@ -96,7 +95,7 @@ defmodule Plex.Repl do
       :eof ->
         send(repl_id, :exit)
       {:error, reason} ->
-        IO.puts("Error reading from stdin: #{reason}")
+        error("Error reading from stdin: #{reason}")
         io(repl_id, counter + 1, prefix)
       text ->
         text = String.strip(text)
@@ -113,7 +112,7 @@ defmodule Plex.Repl do
             send(repl_id, {self, {:pp, rest}})
             io(repl_id, counter + 1, prefix)
           b = <<"/",_ :: binary>> ->
-           IO.puts("Unknown command: #{b}")
+            error("Unknown command: #{b}")
             io(repl_id, counter + 1, prefix)
           code ->
             code =  String.rstrip(code, ?\n)
@@ -123,13 +122,13 @@ defmodule Plex.Repl do
               send(repl_id, {self, {:eval, code}})
               receive do
                 {:ok, result} ->
-                  IO.puts (inspect result)
+                  info(inspect result)
                   io(repl_id, counter + 1, prefix)
                 :do_input ->
                   # TODO: change prefix to indicate expecting more input
                   io(repl_id, counter, prefix)
                 {:error, result} ->
-                 IO.puts (inspect result)
+                 error(inspect result)
                  io(repl_id, counter + 1, prefix)
               end
             end
