@@ -75,6 +75,8 @@ Rules.
 
 Erlang code.
 
+-export([is_keyword/1]).
+
 build_identifier(Chars, Line) ->
     Atom = list_to_atom(Chars),
     case is_keyword(Atom) of

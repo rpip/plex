@@ -19,6 +19,6 @@ fn -> 1 + 2;;
 
 let greeting = "Good morning" in fn -> print greeting;;
 
-x + 9
+add(x,y)
 
 --[[ another long comment ]]

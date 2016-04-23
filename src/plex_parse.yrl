@@ -12,7 +12,7 @@ Nonterminals
   if_expr
   for_expr
   while_expr
-  range_expr
+  range
   let_expr
   case_expr
   clauses
@@ -29,8 +29,6 @@ Nonterminals
   number
   project
   function
-  apply
-  args
   params
   unary_op
   comp_op
@@ -80,7 +78,6 @@ expr -> record : '$1'.
 expr -> list : '$1'.
 expr -> if_expr : '$1'.
 expr -> let_expr : '$1'.
-expr -> apply : '$1'.
 
 expr -> applicable: '$1'.
 applicable -> project : '$1'.
@@ -92,7 +89,7 @@ applicable -> '(' applicable ')': '$2'.
 expr -> for_expr : '$1'.
 expr -> while_expr : '$1'.
 expr -> case_expr : '$1'.
-expr -> range_expr : '$1'.
+expr -> range : '$1'.
 expr -> '(' expr ')' : '$2'.
 expr -> ref_update : '$1'.
 expr -> deref : '$1'.
@@ -130,32 +127,31 @@ dereferable -> identifier : '$1'.
 dereferable -> project : '$1'.
 
 %% Applications
-apply -> applicable '(' ')':
+expr -> applicable '(' ')':
   build_ast_node('Apply', #{
     line => ?line('$1'),
-    applicant => '$1'
+    applicant => '$1',
+    args => []
    }).
-apply -> applicable args :
+expr -> applicable elems :
   build_ast_node('Apply', #{
     line => ?line('$1'),
     applicant => '$1',
     args => ['$2']
    }).
-apply -> applicable '(' args ')':
+expr -> applicable '(' elems ')':
   build_ast_node('Apply', #{
     line => ?line('$1'),
     applicant => '$1',
     args => ['$3']
    }).
 
-args -> params : '$1'.
-
 %% range
-range_expr -> integer '..' integer :
+range -> integer '..' integer :
   build_ast_node('Range', #{
      line  => ?line('$1'),
-     first =>'$1',
-     last  => '$3'
+     from =>'$1',
+     to  => '$3'
     }).
 
 %% Lists
@@ -172,18 +168,7 @@ list -> '[' elems ']'  :
 
 elems -> elem       : ['$1'].
 elems -> elem ',' elems : ['$1'|'$3'].
-elem  -> record : '$1'.
-elem  -> function : '$1'.
-elem  -> apply : '$1'.
-elem  -> list : '$1'.
-elem  -> string : '$1'.
-elem  -> number : '$1'.
-elem  -> atom : '$1'.
-elem  -> boolean : '$1'.
-elem  -> project : '$1'.
-elem  -> arith : '$1'.
-elem  -> deref : '$1'.
-elem  -> identifier : '$1'.
+elem  -> expr : '$1'.
 
 %% Tuples
 record -> '{' elems '}'       :
@@ -193,7 +178,11 @@ record -> '{' elems '}'       :
     }).
 
 %% Records
-record -> '{' '}' : build_ast_node('Record', #{line => ?line('$1')}).
+record -> '{' '}' :
+  build_ast_node('Record', #{
+    line => ?line('$1'),
+    properties => []
+  }).
 record -> '{' bindings '}' :
   build_ast_node('Record', #{
      line => ?line('$1'),
@@ -231,8 +220,8 @@ function -> 'fn' params '->' expr :
      params => '$2',
      body => '$4'
     }).
-params -> expr : ['$1'].
-params -> expr ',' params : ['$1'|'$3'].
+params -> identifier : ['$1'].
+params -> params ',' params : ['$1'|'$3'].
 
 %% FOR expressions
 for_expr -> 'for' expr 'in' expr 'do' expr 'end':
@@ -271,7 +260,7 @@ pattern -> list       : '$1'.
 pattern -> record     : '$1'.
 pattern -> identifier : '$1'.
 pattern -> number     : '$1'.
-pattern -> range_expr : '$1'.
+pattern -> range : '$1'.
 
 
 %% IF conditions

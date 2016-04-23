@@ -3,13 +3,13 @@ defmodule Plex.Compiler.Node.Range do
 
   @type t :: %__MODULE__{
             line: integer,
-            first: integer,
-            last: integer
+            from: integer,
+            to: integer
         }
 
   defstruct [
     :line,
-    :first,
-    :last
+    :from,
+    :to
   ]
 end
