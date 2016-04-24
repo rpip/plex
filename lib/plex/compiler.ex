@@ -21,37 +21,15 @@ defmodule Plex.Compiler do
   end
 end
 
-defmodule Plex.Types.Ref do
-  @moduledoc "Mutable variable"
-
-  alias __MODULE__
-
-  @type t :: %Ref{contents: any}
-
-  defstruct [:contents]
-
-  @spec new(any) :: pid
-  def new(value) do
-    Agent.start_link(fn -> %Ref{contents: value} end)
-  end
-
-  @spec deref(pid) :: Ref.t
-  def deref(pid) do
-    Agent.get(pid, fn ref -> ref end)
-  end
-
-  @spec update(pid, any) :: Ref.t
-  def update(pid, new_val) do
-    Agent.update(pid, fn ref -> %{ref | contents: new_val} end)
-  end
-end
-
 
 defmodule Plex.Compiler.Env do
   @moduledoc "Key-Value bindings managed by a process"
 
+  alias Plex.Types.Ref
+
   @type t :: %{outer: __MODULE__.t, env: map}
   @type key :: atom
+
 
   @doc "Creates a new environment and returns the pid of the `Agent`"
   @spec new(Env.t | nil, list) :: pid
@@ -100,7 +78,7 @@ defmodule Plex.Compiler.Env do
   end
 
   @doc "Returns value of key, otherwise raises an excepption"
-  @spec get!(pid, key) :: value :: no_return
+  @spec get!(pid, key) :: any | no_return
   def get!(pid, key) do
     case find(pid, key) do
       nil -> raise(Plex.Compiler.RuntimeError, error: "unbound variable #{key}")
@@ -108,7 +86,25 @@ defmodule Plex.Compiler.Env do
     end
   end
 
-  def find(pid, key) do
+  @doc "Retrieves the value pointed to by a reference"
+  @spec ref_get!(pid, key) :: any | no_return
+  def ref_get!(pid, key) do
+    case find(pid, key) do
+      nil -> raise(Plex.Compiler.RuntimeError, error: "unbound variable #{key}")
+      env -> lookup_name(env, key) |> Ref.deref
+    end
+  end
+
+  @doc "Updates a reference/mutable variable"
+  @spec ref_set!(pid, key, any) :: :ok | no_return
+  def ref_set!(pid, key, value) do
+    case find(pid, key) do
+      nil -> raise(Plex.Compiler.RuntimeError, error: "unbound variable #{key}")
+      env -> get!(env, key) |> Ref.update(value)
+    end
+  end
+
+  defp find(pid, key) do
     Agent.get(pid, fn map ->
       case Map.has_key?(map.env, key) do
         true -> pid

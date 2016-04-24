@@ -26,3 +26,17 @@ extract_line(Node) when is_map(Node) ->
 extract_line(Node) ->
   io:format("LINE: ~p ~n", [Node]),
   nil.
+
+sugar_function_def(Identifier, Params, FunctionBody) ->
+    sugar_function_def(Identifier, Params, FunctionBody, nil).
+sugar_function_def(Identifier, Params, FunctionBody, InBlock) ->
+  Function = build_ast_node('Function', #{
+     line => ?line(Identifier),
+     params => Params,
+     body => FunctionBody
+    }),
+  build_ast_node('Let', #{
+     line => ?line(Identifier),
+     bindings => [{Identifier, Function}],
+     in_block => InBlock
+    }).

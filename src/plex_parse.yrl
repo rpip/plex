@@ -44,21 +44,26 @@ Nonterminals
 Terminals
 
   '[' ']' '+' '-' '*' '/' '%' ',' '=' ':=' '{' '}' '(' ')' '<' '>' '==' '!='
-  '..' 'not' 'let' 'with' 'in' '->' '.' 'fn' 'if' 'then' 'else' '!' '<=' '>='
+  '..' 'not' 'let' 'with' 'in' '->' '.' '^' 'fn' 'if' 'then' 'else' '!' '<=' '>='
   'and' 'or' 'for' 'do' 'while' 'end' 'case' true false integer float string
   nil identifier eol atom string_interpolate
   .
 
 Rootsymbol root.
 
+Right    20  '->'.
+Left     30  ','.
+Right    90  '='.
 Left     100 'or'.
 Left     110 'and'.
+Left     140 'in'.
+Left     160 'with'.
 %% (1 + 2 * 3 -4) :: sub -> plus -> mul
 Left     210 '+' '-'.
 Left     220 '*' '/'.
-Nonassoc 300 'not'.
-Left     310 '.'.
-Nonassoc 400 '==' '!=' '>=' '<=' '>' '<'.
+Nonassoc 300 'not' '!' '^'.
+Nonassoc 310 '==' '!=' '>=' '<=' '>' '<' ':=' '..'.
+Left     320 '.'.
 
 
 root -> expr_list : '$1'.
@@ -110,6 +115,16 @@ let_expr -> 'let' bindings 'in' expr :
      bindings => '$2',
      in_block => '$4'
     }).
+%% Syntactic sugar for function definitions
+%% let add x, y = x + y is the rewritten as let add = fn x, y -> x + y
+let_expr -> 'let' identifier params '=' expr:
+  sugar_function_def('$2', '$3', '$5').
+let_expr -> 'let' identifier '(' elems ')' '=' expr:
+  sugar_function_def('$2', '$4', '$7').
+let_expr -> 'let' identifier params '=' expr 'in' expr:
+  sugar_function_def('$2', '$3', '$5', '$7').
+let_expr -> 'let' identifier '(' elems ')' '=' expr 'in' expr:
+  sugar_function_def('$2', '$4', '$7', '$9').
 
 %% references
 deref -> '!' dereferable :
@@ -137,13 +152,13 @@ expr -> applicable elems :
   build_ast_node('Apply', #{
     line => ?line('$1'),
     applicant => '$1',
-    args => ['$2']
+    args => '$2'
    }).
 expr -> applicable '(' elems ')':
   build_ast_node('Apply', #{
     line => ?line('$1'),
     applicant => '$1',
-    args => ['$3']
+    args => '$3'
    }).
 
 %% range
@@ -248,7 +263,7 @@ case_expr -> 'case' expr 'do' clauses 'end' :
      clauses => '$4'
     }).
 
-clause -> pattern '->' expr : [{'$1','$3'}].
+clause -> pattern '->' expr : {'$1','$3'}.
 clauses -> clause : ['$1'].
 clauses -> clause eol clauses : ['$1'|'$3'].
 clauses -> clause clauses : ['$1'|'$2'].
@@ -285,7 +300,7 @@ boolean -> unary_op expr :
     type => ?op('$1'),
     arg  => '$2'
    }).
-arith -> expr add_op expr	:
+arith -> expr add_op expr :
   build_ast_node('BinaryOp', #{
     line  => ?line('$1'),
     type  => ?op('$2'),
@@ -299,14 +314,14 @@ arith -> expr mult_op expr :
      left => '$1',
      right => '$3'
    }).
-boolean -> expr comp_op expr   :
+boolean -> expr comp_op expr :
  build_ast_node('BinaryOp', #{
     line => ?line('$1'),
     type => ?op('$2'),
     left => '$1',
     right => '$3'
    }).
-boolean -> expr bool_op expr  :
+boolean -> expr bool_op expr :
   build_ast_node('BinaryOp', #{
     line  => ?line('$1'),
     type  => ?op('$2'),
@@ -344,6 +359,7 @@ add_op -> '-'  : '$1'.
 mult_op -> '*' : '$1'.
 mult_op -> '/' : '$1'.
 mult_op -> '%' : '$1'.
+mult_op -> '^' : '$1'.
 
 %% Unary operators
 unary_op -> 'not' : '$1'.

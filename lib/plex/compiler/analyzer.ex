@@ -9,5 +9,6 @@ defmodule Plex.Analyzer do
   - check if function arguments are used in the body. If not, mark arguments
   - CTE, compile time execution
   - warnings on variables
+  - check for mutations, prevent rebinding immutable vars
   """
 end
