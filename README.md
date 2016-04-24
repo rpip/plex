@@ -1,13 +1,10 @@
 # Plex
 
-Plex is a simple programming language based on a notion of objects as extensible records. And since "everything is an object", a binding may behave simultaneously as a value or a function application.
+Plex is a simple programming language.
 
-### Inspirations:
+Plex started as a port of [Andrej Bauer's Boa](http://www.andrej.com/plzoo/html/boa.html), but the language has since changed in significant ways to include ideas from Ocaml and Haskell. As such, it's syntax and semantics draws heavily from these languages, but is a bit simpler and more streamlined.
 
-- [Andrej Bauer's Boa](http://www.andrej.com/plzoo/html/boa.html)
-- Ocaml
-- Lua
-- Haskell
+The main goal of Plex is to be a learning project. It may become a more serious effort at some point in the future, but for now it is little more than a hobbyist's project.
 
 [![Build Status](https://travis-ci.org/rpip/plex.svg?branch=master)](https://travis-ci.org/rpip/plex)
 
@@ -61,7 +58,7 @@ Ama
 plex> let ama = ama with {age=18}
 plex> ama.age
 18
-plex> let greet = fn name -> print "Hello #{name}"
+plex> let greet name = print "Hello #{name}"
 <Func greet>
 plex> greet "Joe"
 Hello Joe
@@ -73,11 +70,11 @@ To run the automated test suite:
 
 `$ mix test`
 
-# Documentation
+## Documentation
 
 You can build the project source docs locally by running `MIX_ENV=docs mix docs`.
 
-To learn more about the language specification, see the `Wiki` pages.
+To learn more about the language specification, see the [wiki](https://github.com/rpip/plex/wiki) pages.
 
 ## Installation
 
