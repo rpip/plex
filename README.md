@@ -1,8 +1,8 @@
 # Plex
 
-Plex is a simple programming language.
+Plex is a simple programming language based on a notion of objects as extensible records. It supports eager evaluation, first-class functions and dynamic types, but tries to check the integrity of programs statically — that is, at compile time.
 
-Plex started as a port of [Andrej Bauer's Boa](http://www.andrej.com/plzoo/html/boa.html), but the language has since changed in significant ways to include ideas from Ocaml and Haskell. As such, it's syntax and semantics draws heavily from these languages, but is a bit simpler and more streamlined.
+Plex started as a port of [Andrej Bauer's Boa](http://www.andrej.com/plzoo/html/boa.html), but the language has since changed in significant ways to include ideas from Ocaml and Haskell. As such, it's syntax and semantics draw heavily from these languages.
 
 The main goal of Plex is to be a learning project. It may become a more serious effort at some point in the future, but for now it is little more than a hobbyist's project.
 
