@@ -10,6 +10,9 @@
 -define(identifier_name(Id), element(3, Id)).
 
 %% Functions
+%% Hack for boolean values true and false
+unwrap({Value, _Line}) -> Value;
+
 unwrap({_Token, _Line, Value}) -> Value.
 
 to_tuple(Xs) -> erlang:list_to_tuple(Xs).

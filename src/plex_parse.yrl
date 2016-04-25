@@ -46,7 +46,7 @@ Terminals
   '[' ']' '+' '-' '*' '/' '%' ',' '=' ':=' '{' '}' '(' ')' '<' '>' '==' '!='
   '..' 'not' 'let' 'with' 'in' '->' '.' '^' 'fn' 'if' 'then' 'else' '!' '<=' '>='
   'and' 'or' 'for' 'do' 'while' 'end' 'case' true false integer float string
-  nil identifier eol atom string_interpolate
+  identifier eol atom string_interpolate
   .
 
 Rootsymbol root.
@@ -330,9 +330,8 @@ boolean -> expr bool_op expr :
   }).
 
 %% Boolean values
-boolean -> true  : '$1'.
-boolean -> false : '$1'.
-boolean -> nil   : '$1'.
+boolean -> true  : {bool, ?line('$1'), unwrap('$1')}.
+boolean -> false : {bool, ?line('$1'), unwrap('$1')}.
 
 %% Numbers
 number -> float   : '$1'.
