@@ -25,4 +25,21 @@ defmodule Plex.EnvTest do
     Env.ref_set!(env, :num, 10)
     assert Env.ref_get!(env, :num) == 10
   end
+
+  test "variable shadowing", %{env: env} do
+    env2 = Env.new(env)
+    Env.bind(env2, :x, 9)
+    # x in parent env is still 3
+    assert Env.get!(env, :x) == 3
+
+    # x is shadowed in the curret env thanks to lexical scoping
+    assert Env.get!(env2, :x) == 9
+  end
+
+  test "accessing env in parent env", %{env: env} do
+    env2 = Env.new(env)
+
+    # y is not in current env, so it looks in the parent env and finds y
+    assert Env.get!(env2, :y) == 7
+  end
 end
