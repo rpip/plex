@@ -1,6 +1,5 @@
 defmodule Plex.EnvTest do
   use ExUnit.Case, async: true
-  import Plex.Compiler, only: [parse!: 1]
   alias Plex.Env
 
   setup do

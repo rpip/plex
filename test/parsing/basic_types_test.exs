@@ -124,6 +124,6 @@ defmodule Plex.BasicTypesTest do
                line: 1
            }
 
-    {:ok, [ast]} == parse!("[x, :foo, fn x,y -> x + y, add(4,4), {bar, baz}, {a=b,c=d}]")
+    assert {:ok, [ast]} == parse!("[x, :foo, fn x,y -> x + y, add(4,4), {bar, baz}, {a=b,c=d}]")
   end
 end
