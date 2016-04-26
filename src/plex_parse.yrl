@@ -20,6 +20,7 @@ Nonterminals
   pattern
   arith
   record
+  record_extension
   bindings
   binding
   list
@@ -46,7 +47,7 @@ Terminals
   '[' ']' '+' '-' '*' '/' '%' ',' '=' ':=' '{' '}' '(' ')' '<' '>' '==' '!='
   '..' 'not' 'let' 'with' 'in' '->' '.' '^' 'fn' 'if' 'then' 'else' '!' '<=' '>='
   'and' 'or' 'for' 'do' 'while' 'end' 'case' true false integer float string
-  identifier eol atom string_interpolate
+  nil identifier eol atom string_interpolate
   .
 
 Rootsymbol root.
@@ -80,12 +81,14 @@ expr -> string  : '$1'.
 expr -> atom  : '$1'.
 expr -> number  : '$1'.
 expr -> record : '$1'.
+expr -> record_extension : '$1'.
 expr -> list : '$1'.
 expr -> if_expr : '$1'.
 expr -> let_expr : '$1'.
 
 expr -> applicable: '$1'.
 applicable -> project : '$1'.
+%% TODO: unwrap identifiers
 applicable -> identifier : '$1'.
 applicable -> function : '$1'.
 applicable -> '(' applicable ')': '$2'.
@@ -204,10 +207,11 @@ record -> '{' bindings '}' :
      properties => '$2'
     }).
 binding  -> identifier '=' expr  : {'$1', '$3'}.
-binding  -> identifier '=' expr 'with' record : {'$1', '$3', '$5'}.
-binding  -> identifier '=' expr 'with' function : {'$1', '$3', '$5'}.
+binding  -> identifier '=' expr 'with' function : {'$1', '$3', {with_function, '$5'}}.
 bindings -> binding  : ['$1'].
 bindings -> binding ',' bindings : ['$1'|'$3'].
+
+record_extension -> expr 'with' record : {record_extension, {'$1', '$3'}}.
 
 project -> identifier '.' identifier :
   build_ast_node('Project', #{
@@ -236,7 +240,7 @@ function -> 'fn' params '->' expr :
      body => '$4'
     }).
 params -> identifier : ['$1'].
-params -> params ',' params : ['$1'|'$3'].
+params -> params ',' params : '$1' ++ '$3'.
 
 %% FOR expressions
 for_expr -> 'for' expr 'in' expr 'do' expr 'end':
@@ -332,6 +336,7 @@ boolean -> expr bool_op expr :
 %% Boolean values
 boolean -> true  : {bool, ?line('$1'), unwrap('$1')}.
 boolean -> false : {bool, ?line('$1'), unwrap('$1')}.
+boolean -> nil   : {bool, ?line('$1'), unwrap('$1')}.
 
 %% Numbers
 number -> float   : '$1'.
