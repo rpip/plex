@@ -36,7 +36,9 @@ defmodule Plex.Types.Ref do
 
   @spec new(any) :: pid
   def new(value) do
-    Agent.start_link(fn -> %Ref{contents: value} end)
+    with {:ok, pid} <- Agent.start_link(fn -> %Ref{contents: value} end) do
+      pid
+    end
   end
 
   @spec deref(pid) :: Ref.t

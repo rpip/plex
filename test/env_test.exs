@@ -19,7 +19,7 @@ defmodule Plex.EnvTest do
   end
 
   test "ref set", %{env: env} do
-    {:ok, ref_id} = Plex.Types.Ref.new(4)
+    ref_id = Plex.Types.Ref.new(4)
     Env.bind(env, :num, ref_id)
     Env.ref_set!(env, :num, 10)
     assert Env.ref_get!(env, :num) == 10

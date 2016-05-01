@@ -15,7 +15,7 @@ defmodule Plex.Compiler.SyntaxError do
 end
 
 
-defmodule Plex.CompileError.CompileError do
+defmodule Plex.Compiler.RuntimeError do
   @moduledoc """
   Runtime error exceptions. These errors will eventually be handled at compile
   by the analyzer.
@@ -42,6 +42,6 @@ defmodule Plex.CompileError.CompileError do
   ]
 
   def message(exception) do
-    "#{exception.error}. #{exception.location.file}, #{exception.location.line}"
+    "#{exception.error}"
   end
 end

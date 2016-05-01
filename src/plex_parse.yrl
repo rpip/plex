@@ -62,9 +62,9 @@ Left     160 'with'.
 %% (1 + 2 * 3 -4) :: sub -> plus -> mul
 Left     210 '+' '-'.
 Left     220 '*' '/'.
-Nonassoc 300 'not' '!' '^'.
-Nonassoc 310 '==' '!=' '>=' '<=' '>' '<' ':=' '..'.
-Left     320 '.'.
+Left     300 '.'.
+Nonassoc 310 'not' '!' '^'.
+Nonassoc 320 '==' '!=' '>=' '<=' '>' '<' ':=' '..'.
 
 
 root -> expr_list : '$1'.
@@ -133,12 +133,12 @@ let_expr -> 'let' identifier '(' elems ')' '=' expr 'in' expr:
 deref -> '!' dereferable :
   build_ast_node('Deref', #{
      line => ?line('$1'),
-     name => '$2'
+     ref => '$2'
   }).
 ref_update -> dereferable ':=' expr :
   build_ast_node('UpdateRef', #{
      line  => ?line('$1'),
-     name  => '$1',
+     ref  => '$1',
      value => '$3'
   }).
 dereferable -> identifier : '$1'.

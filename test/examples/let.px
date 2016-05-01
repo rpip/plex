@@ -42,4 +42,9 @@ some examples of recursive let expressions
 -- this following code evaluates to 42
 let f = fn x -> x + 1 in
   let f = fn x -> x * f x in
-    f 6
+    f 6;
+
+
+-- test shadowing
+let x = 1 in
+  let x = x in x + 4;;

@@ -1,15 +1,30 @@
 defmodule Plex.Compiler.Node.UpdateRef do
   @moduledoc "Update a reference"
 
+  alias __MODULE__
+  alias Plex.Types.Ref
+  alias Plex.{Env, Compiler}
+  import Plex.Utils, only: [unwrap: 1]
+
   @type t :: %__MODULE__{
             line: integer,
-            name: atom,
+            ref: atom,
             value: any
         }
 
   defstruct [
     :line,
-    :name,
+    :ref,
     :value
   ]
+
+  defimpl Plex.Compiler.Node do
+    def eval(%UpdateRef{ref: ref, value: val}, env) do
+      ref = unwrap(ref)
+      new_val = Compiler.eval(val, env)
+
+      Env.get!(env, ref)
+      |> Ref.update(new_val)
+    end
+  end
 end

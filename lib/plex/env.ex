@@ -41,9 +41,16 @@ defmodule Plex.Env do
 
   @doc "Merges the second environment into the first one"
   @spec merge(pid, map) :: :ok
-  def merge(pid, other_env) do
+  def merge(pid, other_env) when is_pid(other_env) do
     Agent.update(pid, fn map ->
       %{map | :env => Map.merge(map.env, bindings(other_env))}
+    end)
+  end
+
+  @spec merge(pid, map) :: :ok
+  def merge(pid, other_env) do
+    Agent.update(pid, fn map ->
+      %{map | :env => Map.merge(map.env, other_env)}
     end)
   end
 

@@ -38,7 +38,7 @@ defprotocol Plex.Compiler.Node do
   @spec eval(Plex.Compiler.Node.t, env) :: env
   def eval(node, env)
 
-  @doc "Formats the node for pretty display"
-  @spec format(Plex.Compiler.Node.t) :: env
-  def format(node)
+  #@doc "Formats the node for pretty display"
+  #@spec format(Plex.Compiler.Node.t) :: env
+  #def format(node)
 end

@@ -7,14 +7,16 @@ defmodule Plex.Repl do
   /pp  - Tokenize and parse code
   """
   import Plex.Logger, only: [info: 1, error: 1]
+  alias Plex.Env
 
-  def run do
+  def run(env) do
+
     if tty_works? do
       function = fn() ->
         spawn(fn ->
           :ok = :io.setopts(Process.group_leader(), [binary: true, encoding: :unicode])
 
-          start_repl
+          start_repl(env)
 
           send(Process.whereis(:plex_repl), {self, :tty_sl_exit})
 
@@ -26,7 +28,7 @@ defmodule Plex.Repl do
 
       receive do: (:tty_sl_exit -> :ok)
     else
-      start_repl
+      start_repl(env)
     end
   end
 
@@ -39,13 +41,13 @@ defmodule Plex.Repl do
     end
   end
 
-  defp start_repl do
+  defp start_repl(env) do
     IO.puts("Plex (0.0.1)")
     IO.puts @usage
     term = System.get_env("TERM") || ""
     IO.puts("Using a #{if tty_works?, do: "smart", else: "dumb"} terminal (TERM = \"#{term}\").")
 
-    pid = spawn(fn -> repl([]) end)
+    pid = spawn(fn -> repl(env) end)
     Process.register(pid, :plex_repl)
     io(pid, 1, "plex")
   end
@@ -73,7 +75,8 @@ defmodule Plex.Repl do
         result = Plex.Compiler.parse!(code)
         case result do
           {:ok, ast} ->
-            send(from, {:ok, ast})
+            result = Plex.Compiler.eval(ast, env)
+            send(from, {:ok, result})
             repl(env)
           # incomplete input
           {:error, {_, :plex_parse, [_reason,[]]}} ->
