@@ -30,7 +30,7 @@ defmodule Plex do
               not: &Kernel.not/1,
               fst: &(elem(&1, 0)),
               snd: &(elem(&1, 1)),
-              nth: &Enum.nth/2,
+              nth: &Enum.at/2,
               fail: &fail/1,
               _argv_: &System.argv/0,
               print: &IO.puts/1,
@@ -39,7 +39,6 @@ defmodule Plex do
               reduce: &Enum.reduce/3,
             head: fn [h|_] -> h end,
             tail: fn [_|t] -> t end
-            #eval: %Closure{value: fn ast, env -> Compiler.eval!(ast, env) end},
           }
     end
 

@@ -27,7 +27,6 @@ extract_line({_, Line} = _Node) ->
 extract_line(Node) when is_map(Node) ->
     maps:get(line, Node);
 extract_line(Node) ->
-  io:format("LINE: ~p ~n", [Node]),
   nil.
 
 sugar_function_def(Identifier, Params, FunctionBody) ->
@@ -40,6 +39,6 @@ sugar_function_def(Identifier, Params, FunctionBody, InBlock) ->
     }),
   build_ast_node('Let', #{
      line => ?line(Identifier),
-     bindings => [{Identifier, Function}],
+     bindings => [{unwrap(Identifier), Function}],
      in_block => InBlock
     }).

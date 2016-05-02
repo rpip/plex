@@ -10,8 +10,8 @@ defmodule Plex.FunctionDefTest do
                         right: {:identifier, 1, :y}, type: :+},
               line: 1,
               params: [
-                {:identifier, 1, :x},
-                {:identifier, 1, :y}
+                :x,
+                :y
               ]
           }
     )
@@ -23,16 +23,18 @@ defmodule Plex.FunctionDefTest do
     ast = (
       %Plex.Compiler.Node.Let{bindings: [
                                    {
-                                       {:identifier, 1, :greet},
+                                       :greet,
                                        %Plex.Compiler.Node.Function{
                                                 body: %Plex.Compiler.Node.Apply{
                                                           applicant: {:identifier,1, :print},
                                                           args: [
                                                             {:identifier, 1, :message}
-                                                          ], line: 1},
+                                                          ],
+                                                          line: 1
+                                                      },
                                                 line: 1,
                                                 params: [
-                                                  {:identifier,1, :message}
+                                                  :message
                                                 ]
                                             }
                                    }
@@ -46,17 +48,19 @@ defmodule Plex.FunctionDefTest do
   test "syntactic function def with two arguments" do
     ast = (%Plex.Compiler.Node.Let{
                     bindings: [
-                      {{:identifier, 1, :add},
-                       %Plex.Compiler.Node.Function{
-                                body:
-                                %Plex.Compiler.Node.BinaryOp{
-                                         left: {:identifier, 1, :x}, line: 1,
-                                         right: {:identifier,1, :y}, type: :+}, line: 1,
-                                params: [
-                                  {:identifier, 1, :x},
-                                  {:identifier, 1, :y}
-                                ]
-                            }
+                      {
+                          :add,
+                          %Plex.Compiler.Node.Function{
+                                   body:
+                                   %Plex.Compiler.Node.BinaryOp{
+                                            left: {:identifier, 1, :x}, line: 1,
+                                            right: {:identifier,1, :y}, type: :+},
+                                   line: 1,
+                                   params: [
+                                     :x,
+                                     :y
+                                   ]
+                               }
                       }
                     ], in_block: nil, line: 1}
 

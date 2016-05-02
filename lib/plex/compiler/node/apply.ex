@@ -5,7 +5,6 @@ defmodule Plex.Compiler.Node.Apply do
   alias Plex.{Compiler, Env}
   alias Plex.Compiler.Closure
   alias Plex.Compiler.Node.Function
-  import Plex.Utils, only: [unwrap: 1]
 
   @type t :: %__MODULE__{
             line: integer,
@@ -20,22 +19,14 @@ defmodule Plex.Compiler.Node.Apply do
   ]
 
   defimpl Plex.Compiler.Node do
-    def eval(%Apply{applicant: {:identifier, _line, name}, args: []}, env) do
-      case Env.get!(env, name) do
-        # TODO: check for correct arity
-        %Closure{value: closure} -> closure.([])
-        func -> func.()
-      end
-    end
-
     def eval(%Apply{applicant: {:identifier, _line, name}, args: args}, env) do
       term = Env.get!(env, name)
       args = Enum.map(args, &(Compiler.eval(&1, env)))
 
       case term do
         # TODO: check for correct arity
-        %Closure{value: closure} -> closure.(args)
-        func -> func.(args)
+        %Closure{value: closure} -> apply(closure, [args])
+        func -> apply(func, args)
       end
     end
 
@@ -45,7 +36,6 @@ defmodule Plex.Compiler.Node.Apply do
     end
 
     defp apply_function(body, params, args, env) do
-      params = Enum.map(params, &unwrap/1)
       bindings = Enum.zip(params, args) |> Enum.into(%{})
       local_scope = Env.new(env, bindings)
       Compiler.eval(body, local_scope)

@@ -8,7 +8,6 @@ defmodule Plex.Compiler.Node.Function do
 
   alias __MODULE__
   alias Plex.{Compiler, Env}
-  import Plex.Utils, only: [unwrap: 1]
 
   @type t :: %__MODULE__{
             line: integer,
@@ -25,7 +24,6 @@ defmodule Plex.Compiler.Node.Function do
   defimpl Plex.Compiler.Node do
     def eval(%Function{params: params, body: body}, env) do
       closure = fn args ->
-        params = Enum.map(params, &unwrap/1)
         bindings = Enum.zip(params, args) |> Enum.into(%{})
         local_scope = Env.new(env, bindings)
         Compiler.eval(body, local_scope)

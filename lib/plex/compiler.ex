@@ -22,15 +22,27 @@ defmodule Plex.Compiler do
     end
   end
 
+  @doc "Evaluates parse tree"
+  @spec eval([Compiler.Node.t], Env.t) :: term
   def eval(ast, env) when is_list(ast) do
     Enum.map(ast, &(eval(&1, env)))
     |> Enum.at(-1)
   end
 
+  @doc """
+  Runtime code evaluation.
+
+  This runs the code through lexing, generates parse tree and evaluates the AST
+
+  ## Example
+  iex> import Plex.Compiler, only: [eval!: 2]
+  iex> eval!("let x = ref 6 in !x + 10")
+  16
+  """
+  @spec eval!(String.t, Env.t) :: term
   def eval!(code, env) do
     with {:ok, ast} <- parse!(code) do
-      Enum.map(ast, &(eval(&1, env)))
-      |> Enum.at(-1)
+      eval(ast, env)
     end
   end
 

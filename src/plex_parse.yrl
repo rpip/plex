@@ -53,7 +53,7 @@ Rootsymbol root.
 
 Right    20  '->'.
 Left     30  ','.
-Right    90  '='.
+Right    90  ':=' '='.
 Left     100 'or'.
 Left     110 'and'.
 Left     140 'in'.
@@ -63,7 +63,7 @@ Left     210 '+' '-'.
 Left     220 '*' '/'.
 Left     300 '.'.
 Nonassoc 310 '!' '^'.
-Nonassoc 320 '==' '!=' '>=' '<=' '>' '<' ':=' '..'.
+Nonassoc 320 '==' '!=' '>=' '<=' '>' '<' '..'.
 
 
 root -> expr_list : '$1'.
@@ -87,11 +87,10 @@ expr -> let_expr : '$1'.
 
 expr -> applicable: '$1'.
 applicable -> project : '$1'.
-%% TODO: unwrap identifiers
 applicable -> identifier : '$1'.
 applicable -> function : '$1'.
 applicable -> '(' applicable ')': '$2'.
-
+%applicable -> '(' applicable expr')': '$2'.
 
 expr -> for_expr : '$1'.
 expr -> while_expr : '$1'.
@@ -132,12 +131,12 @@ let_expr -> 'let' identifier '(' elems ')' '=' expr 'in' expr:
 deref -> '!' dereferable :
   build_ast_node('Deref', #{
      line => ?line('$1'),
-     ref => '$2'
+     ref => unwrap('$2')
   }).
 ref_update -> dereferable ':=' expr :
   build_ast_node('UpdateRef', #{
      line  => ?line('$1'),
-     ref  => '$1',
+     ref  => unwrap('$1'),
      value => '$3'
   }).
 dereferable -> identifier : '$1'.
@@ -191,7 +190,7 @@ elem  -> expr : '$1'.
 record -> '{' elems '}'       :
   build_ast_node('Tuple', #{
      line => ?line('$1'),
-     elements => to_tuple('$2')
+     elements => '$2'
     }).
 
 %% Records
@@ -205,8 +204,8 @@ record -> '{' bindings '}' :
      line => ?line('$1'),
      properties => '$2'
     }).
-binding  -> identifier '=' expr  : {'$1', '$3'}.
-binding  -> identifier '=' expr 'with' function : {'$1', '$3', {with_function, '$5'}}.
+binding  -> identifier '=' expr  : {unwrap('$1'), '$3'}.
+binding  -> identifier '=' expr 'with' function : {unwrap('$1'), '$3', {with_function, '$5'}}.
 bindings -> binding  : ['$1'].
 bindings -> binding ',' bindings : ['$1'|'$3'].
 
@@ -238,7 +237,7 @@ function -> 'fn' params '->' expr :
      params => '$2',
      body => '$4'
     }).
-params -> identifier : ['$1'].
+params -> identifier : [unwrap('$1')].
 params -> params ',' params : '$1' ++ '$3'.
 
 %% FOR expressions

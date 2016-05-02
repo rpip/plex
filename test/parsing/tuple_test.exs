@@ -5,11 +5,11 @@ defmodule Plex.TupleTest do
   test "homegenous tuple" do
     ast =
       %Plex.Compiler.Node.Tuple{
-               elements: {
+               elements: [
                        {:integer, 1, 1},
                        {:integer, 1, 2},
                        {:integer, 1, 3}
-                   },
+                   ],
                line: 1
            }
 
@@ -19,7 +19,7 @@ defmodule Plex.TupleTest do
   test "complex tuple types" do
     ast =
       %Plex.Compiler.Node.Tuple{
-               elements: {
+               elements: [
                        {:integer, 1, 1},
                        {:atom, 1, :foo},
                        %Plex.Compiler.Node.List{
@@ -38,21 +38,19 @@ defmodule Plex.TupleTest do
                             },
                        %Plex.Compiler.Node.Function{
                                 body: %Plex.Compiler.Node.BinaryOp{
-                                          left: {:identifier, 1, :some_var},
+                                          left: {:identifier, 1, :n},
                                           line: 1,
                                           right: {:integer, 1, 1},
                                           type: :+
                                       },
                                 line: 1,
                                 params:
-                                [
-                                    {:identifier, 1, :some_var}
-                                ]
+                                [:n]
                             }
-                   },
+                   ],
                line: 1
            }
 
-    assert {:ok, [ast]} == parse!("{1,:foo,[], y, add(num1,num2), fn some_var -> some_var + 1}")
+    assert {:ok, [ast]} == parse!("{1, :foo, [], y, add(num1,num2), fn n -> n + 1}")
   end
 end

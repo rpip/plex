@@ -4,7 +4,6 @@ defmodule Plex.Compiler.Node.UpdateRef do
   alias __MODULE__
   alias Plex.Types.Ref
   alias Plex.{Env, Compiler}
-  import Plex.Utils, only: [unwrap: 1]
 
   @type t :: %__MODULE__{
             line: integer,
@@ -20,7 +19,6 @@ defmodule Plex.Compiler.Node.UpdateRef do
 
   defimpl Plex.Compiler.Node do
     def eval(%UpdateRef{ref: ref, value: val}, env) do
-      ref = unwrap(ref)
       new_val = Compiler.eval(val, env)
 
       Env.get!(env, ref)

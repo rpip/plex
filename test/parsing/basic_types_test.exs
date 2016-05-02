@@ -88,8 +88,8 @@ defmodule Plex.BasicTypesTest do
                                 },
                           line: 1,
                           params: [
-                            {:identifier, 1, :x},
-                            {:identifier, 1, :y}
+                            :x,
+                            :y
                           ]
                       },
                  %Plex.Compiler.Node.Apply{
@@ -101,21 +101,21 @@ defmodule Plex.BasicTypesTest do
                           line: 1
                       },
                  %Plex.Compiler.Node.Tuple{
-                          elements: {
+                          elements: [
                                   {:identifier, 1, :bar},
                                   {:identifier, 1, :baz}
-                              },
+                              ],
                           line: 1
                       },
                  %Plex.Compiler.Node.Record{
                           line: 1,
                           properties: [
                             {
-                                {:identifier, 1, :a},
+                                :a,
                                 {:identifier, 1, :b}
                             },
                             {
-                                {:identifier, 1, :c},
+                                :c,
                                 {:identifier, 1, :d}
                             }
                           ]

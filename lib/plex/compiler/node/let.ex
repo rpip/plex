@@ -6,7 +6,6 @@ defmodule Plex.Compiler.Node.Let do
   """
   alias __MODULE__
   alias Plex.{Compiler, Env}
-  import Plex.Utils, only: [unwrap: 1]
 
   @type t :: %__MODULE__{
             line: integer,
@@ -27,14 +26,17 @@ defmodule Plex.Compiler.Node.Let do
 
     def eval(%Let{bindings: bindings, in_block: in_block}, env) do
       do_let_bindings(bindings, env)
+
       Compiler.eval(in_block, env)
     end
 
     defp do_let_bindings(bindings, env) do
       Enum.map(bindings, fn {k, v} ->
-        key = unwrap(k)
-        val = Compiler.eval(v, env)
-        Env.bind(env, key, val)
+          val = Compiler.eval(v, env)
+          Env.bind(env, k, val);
+        {k, v, with_clause} ->
+          val = Compiler.eval(v, env)
+          Env.bind(env, k, val);
       end)
     end
   end

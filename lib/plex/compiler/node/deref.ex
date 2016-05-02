@@ -4,7 +4,6 @@ defmodule Plex.Compiler.Node.Deref do
   alias __MODULE__
   alias Plex.Types.Ref
   alias Plex.Env
-  import Plex.Utils, only: [unwrap: 1]
 
   @type t :: %__MODULE__{
             line: integer,
@@ -18,7 +17,6 @@ defmodule Plex.Compiler.Node.Deref do
 
   defimpl Plex.Compiler.Node do
     def eval(%Deref{ref: ref}, env) do
-      ref = unwrap(ref)
       Env.get!(env, ref)
       |> Ref.deref
     end
