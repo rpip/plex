@@ -10,5 +10,6 @@ defmodule Plex.Analyzer do
   - CTE, compile time execution
   - warnings on variables
   - check for mutations, prevent rebinding immutable vars
+  - expand range values when in the right context
   """
 end

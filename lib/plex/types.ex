@@ -21,6 +21,7 @@ defmodule Plex.Types do
   end
 
   def integer?(ast) do
+    true
   end
 end
 

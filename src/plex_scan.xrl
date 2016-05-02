@@ -129,8 +129,6 @@ is_keyword('in') ->
     true;
 is_keyword('let') ->
     true;
-is_keyword('not') ->
-    true;
 is_keyword('or') ->
     true;
 is_keyword('then') ->

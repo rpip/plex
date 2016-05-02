@@ -50,6 +50,10 @@ defmodule Plex.Compiler do
     Env.get!(env, name)
   end
 
+  def eval({:bool, _, nil}, _env) do
+    false
+  end
+
   def eval({:bool, _, val}, _env) do
     val
   end

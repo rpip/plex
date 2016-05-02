@@ -31,7 +31,6 @@ Nonterminals
   project
   function
   params
-  unary_op
   comp_op
   bool_op
   mult_op
@@ -45,7 +44,7 @@ Nonterminals
 Terminals
 
   '[' ']' '+' '-' '*' '/' '%' ',' '=' ':=' '{' '}' '(' ')' '<' '>' '==' '!='
-  '..' 'not' 'let' 'with' 'in' '->' '.' '^' 'fn' 'if' 'then' 'else' '!' '<=' '>='
+  '..' 'let' 'with' 'in' '->' '.' '^' 'fn' 'if' 'then' 'else' '!' '<=' '>='
   'and' 'or' 'for' 'do' 'while' 'end' 'case' true false integer float string
   nil identifier eol atom string_interpolate
   .
@@ -63,7 +62,7 @@ Left     160 'with'.
 Left     210 '+' '-'.
 Left     220 '*' '/'.
 Left     300 '.'.
-Nonassoc 310 'not' '!' '^'.
+Nonassoc 310 '!' '^'.
 Nonassoc 320 '==' '!=' '>=' '<=' '>' '<' ':=' '..'.
 
 
@@ -298,12 +297,6 @@ if_expr -> 'if' expr 'then' expr 'else' expr :
     }).
 
 %% Arithmetic and boolean  operations
-boolean -> unary_op expr :
-  build_ast_node('UnaryOp', #{
-    line => ?line('$1'),
-    type => ?op('$1'),
-    arg  => '$2'
-   }).
 arith -> expr add_op expr :
   build_ast_node('BinaryOp', #{
     line  => ?line('$1'),
@@ -364,9 +357,6 @@ mult_op -> '*' : '$1'.
 mult_op -> '/' : '$1'.
 mult_op -> '%' : '$1'.
 mult_op -> '^' : '$1'.
-
-%% Unary operators
-unary_op -> 'not' : '$1'.
 
 Erlang code.
 
