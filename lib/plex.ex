@@ -45,6 +45,8 @@ defmodule Plex do
     def bootstrap(env) do
       Env.merge(env, namespace)
 
+      Env.bind(env, :eval, fn code -> Compiler.eval!(code, env) end)
+
       env
     end
 
