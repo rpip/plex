@@ -67,8 +67,5 @@ defmodule Plex do
     def fail!(message) do
       raise Compiler.RuntimeError, message: message
     end
-
-    def reduce(xs, fun) do
-    end
   end
 end

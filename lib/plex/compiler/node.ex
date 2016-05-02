@@ -4,9 +4,9 @@ defprotocol Plex.Compiler.Node do
   alias Plex.Compiler.Node.{
             Let, If, For,
             While, BinaryOp,
-            UnaryOp, App,
+            UnaryOp, Apply,
             Case, Function,
-            Interpolate, Project,
+            Project,
             List, Tuple,
             Range, Record,
             UpdateRef, Deref
@@ -16,11 +16,10 @@ defprotocol Plex.Compiler.Node do
             | For.t
             | BinaryOp.t
             | UnaryOp.t
-            | App.t
+            | Apply.t
             | Case.t
             | For.t
             | Function.t
-            | Interpolate.t
             | Project.t
             | Let.t
             | List.t

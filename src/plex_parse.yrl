@@ -100,9 +100,10 @@ expr -> '(' expr ')' : '$2'.
 expr -> ref_update : '$1'.
 expr -> deref : '$1'.
 expr -> string_interpolate :
-  build_ast_node('Interpolate', #{
+  build_ast_node('Apply', #{
      line => ?line('$1'),
-     body => '$1'
+     applicant => {identifier, ?line('$1'), eval},
+     args => [{string, ?line('$1'), unwrap('$1')}]
     }).
 %% Let bindings
 let_expr -> 'let' bindings :
