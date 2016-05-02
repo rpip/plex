@@ -25,9 +25,10 @@ defmodule Plex.Compiler.Node.Let do
     end
 
     def eval(%Let{bindings: bindings, in_block: in_block}, env) do
-      do_let_bindings(bindings, env)
+      local_scope = Env.new(env)
+      do_let_bindings(bindings, local_scope)
 
-      Compiler.eval(in_block, env)
+      Compiler.eval(in_block, local_scope)
     end
 
     defp do_let_bindings(bindings, env) do
