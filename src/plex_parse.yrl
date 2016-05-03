@@ -244,7 +244,7 @@ params -> identifier : [unwrap('$1')].
 params -> params ',' params : '$1' ++ '$3'.
 
 %% FOR expressions
-for_expr -> 'for' expr 'in' expr 'do' expr 'end':
+for_expr -> 'for' expr 'in' expr 'do' expr_list 'end':
   build_ast_node('For', #{
      line => ?line('$1'),
      term => unwrap('$2'),
@@ -253,7 +253,7 @@ for_expr -> 'for' expr 'in' expr 'do' expr 'end':
     }).
 
 %% WHILE expressions
-while_expr -> 'while' expr 'do' expr 'end' :
+while_expr -> 'while' expr 'do' expr_list 'end' :
   build_ast_node('While', #{
      line => ?line('$1'),
      condition => '$2',

@@ -27,8 +27,7 @@ defmodule Plex.Compiler.Node.For do
       do_loop(term, xs, body, local_scope)
     end
 
-    defp do_loop(term, [], body, env) do
-    end
+    defp do_loop(_term, [], _body, _env), do: :ok
 
     defp do_loop(term, [h|t], body, env) do
       Env.bind(env, term, h)

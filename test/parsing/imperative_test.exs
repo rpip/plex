@@ -29,32 +29,34 @@ defmodule Plex.ImperativeTests do
 
   test "for loop" do
     ast =
-      %Plex.Compiler.Node.For{body:
-                              %Plex.Compiler.Node.UpdateRef{
-                                       line: 2,
-                                       ref: :tasks,
-                                       value: %Plex.Compiler.Node.Apply{
-                                                  applicant:
-                                                  %Plex.Compiler.Node.Project{
-                                                           field: :append,
-                                                           line: 2,
-                                                           object: {:identifier, 2,:list}
-                                                       },
-                                                  args: [
-                                                    {:identifier, 2, :foo},
-                                                    {:identifier, 2, :x}
-                                                  ],
-                                                  line: 2
-                                              }
-                                   },
-                              generator: %Plex.Compiler.Node.Range{from:
-                                                                   {:integer, 1, 0},
-                                                                   line: 1,
-                                                                   to: {:integer, 1, 5}
-                                                                  },
-                              line: 1,
-                              term: :x
-                             }
+      %Plex.Compiler.Node.For{
+               body: [
+               %Plex.Compiler.Node.UpdateRef{
+                        line: 2,
+                        ref: :tasks,
+                        value: %Plex.Compiler.Node.Apply{
+                                   applicant:
+                                   %Plex.Compiler.Node.Project{
+                                            field: :append,
+                                            line: 2,
+                                            object: {:identifier, 2,:list}
+                                        },
+                                   args: [
+                                     {:identifier, 2, :foo},
+                                     {:identifier, 2, :x}
+                                   ],
+                                   line: 2
+                               }
+                    }
+               ],
+               generator: %Plex.Compiler.Node.Range{from:
+                                                    {:integer, 1, 0},
+                                                    line: 1,
+                                                    to: {:integer, 1, 5}
+                                                   },
+               line: 1,
+               term: :x
+           }
 
     code = """
       for x in 0..5 do
@@ -128,13 +130,15 @@ defmodule Plex.ImperativeTests do
   test "while loop" do
     ast =
       %Plex.Compiler.Node.While{
-               body: %Plex.Compiler.Node.Apply{
-                         applicant: {:identifier, 2, :print},
-                         args: [
-                           {:string, 2, "Task list not empty"}
-                         ],
-                         line: 2
-                     },
+               body: [
+                 %Plex.Compiler.Node.Apply{
+                          applicant: {:identifier, 2, :print},
+                          args: [
+                            {:string, 2, "Task list not empty"}
+                          ],
+                          line: 2
+                      }
+               ],
                condition: %Plex.Compiler.Node.BinaryOp{
                               left: %Plex.Compiler.Node.Deref{
                                         line: 1,

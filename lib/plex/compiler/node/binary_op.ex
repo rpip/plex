@@ -47,7 +47,7 @@ defmodule Plex.Compiler.Node.BinaryOp do
     end
 
     def eval(%BinaryOp{left: left, right: right, type: :<}, env) do
-      Compiler.eval(left, env) == Compiler.eval(right, env)
+      Compiler.eval(left, env) < Compiler.eval(right, env)
     end
 
     def eval(%BinaryOp{left: left, right: right, type: :>=}, env) do
