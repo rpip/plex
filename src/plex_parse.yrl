@@ -210,13 +210,15 @@ binding  -> identifier '=' expr 'with' function : {unwrap('$1'), '$3', {with_fun
 bindings -> binding  : ['$1'].
 bindings -> binding ',' bindings : ['$1'|'$3'].
 
-record_extension -> expr 'with' record : {record_extension, {'$1', '$3'}}.
+record_extension -> identifier 'with' record : {record_extension, {'$1', '$3'}}.
+record_extension -> record 'with' record : {record_extension, {'$1', '$3'}}.
+record_extension -> deref 'with' record : {record_extension, {'$1', '$3'}}.
 
 project -> identifier '.' identifier :
   build_ast_node('Project', #{
     line   => ?line('$1'),
     object => '$1',
-    field  => '$3'
+    field  => unwrap('$3')
   }).
 project -> project '.' identifier:
   build_ast_node('Project', #{
@@ -245,7 +247,7 @@ params -> params ',' params : '$1' ++ '$3'.
 for_expr -> 'for' expr 'in' expr 'do' expr 'end':
   build_ast_node('For', #{
      line => ?line('$1'),
-     term => '$2',
+     term => unwrap('$2'),
      generator => '$4',
      body => '$6'
     }).

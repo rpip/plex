@@ -36,7 +36,8 @@ defmodule Plex.ImperativeTests do
                                        value: %Plex.Compiler.Node.Apply{
                                                   applicant:
                                                   %Plex.Compiler.Node.Project{
-                                                           field: {:identifier, 2, :append}, line: 2,
+                                                           field: :append,
+                                                           line: 2,
                                                            object: {:identifier, 2,:list}
                                                        },
                                                   args: [
@@ -52,7 +53,7 @@ defmodule Plex.ImperativeTests do
                                                                    to: {:integer, 1, 5}
                                                                   },
                               line: 1,
-                              term: {:identifier, 1, :x}
+                              term: :x
                              }
 
     code = """
