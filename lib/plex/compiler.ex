@@ -2,6 +2,7 @@ defmodule Plex.Compiler do
   @moduledoc """
   Parses text and transaltes into Elixir data structures
   """
+  alias __MODULE__
   alias Plex.Env
 
   def lex(text) do
@@ -62,15 +63,18 @@ defmodule Plex.Compiler do
     Env.get!(env, name)
   end
 
-  def eval({:bool, _, nil}, _env) do
-    false
-  end
-
   def eval({:bool, _, val}, _env) do
     val
   end
 
+  def eval({:record_extension, {parent, changeset}}, env) do
+    parent = Compiler.eval(parent, env)
+    changeset = Compiler.eval(changeset, env)
+
+    Map.merge(parent, changeset)
+  end
+
   def eval(ast, env) do
-    Plex.Compiler.Node.eval(ast, env)
+    Compiler.Node.eval(ast, env)
   end
 end

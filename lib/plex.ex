@@ -43,9 +43,8 @@ defmodule Plex do
     def bootstrap(env) do
       Env.merge(env, namespace)
 
-      Env.bind(env, :eval, fn code ->
-        local_scope = Env.new(env)
-        Compiler.eval!(code, local_scope)
+      Env.bind(env, :eval, fn code, tmp_env ->
+        Compiler.eval!(code, tmp_env)
       end)
 
       Env.bind(env, :map, fn seq, fun ->
@@ -59,6 +58,8 @@ defmodule Plex do
           fun.value.([elem, acc])
         end)
       end)
+
+      Env.bind(env, :_env_, fn -> Env.bindings(env) end)
 
       # now return the env
       env

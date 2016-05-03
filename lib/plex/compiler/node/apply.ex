@@ -19,6 +19,22 @@ defmodule Plex.Compiler.Node.Apply do
   ]
 
   defimpl Plex.Compiler.Node do
+    # HACK: runtime `eval` logic moved here as work around allowing optional env
+    def eval(%Apply{applicant: {:identifier, _line, :eval}, args: [{:string,_, code}]}, env) do
+      local_scope = Env.new(env)
+      func = Env.get!(env, :eval)
+      |> apply([code, local_scope])
+    end
+
+    def eval(%Apply{applicant: {:identifier, _line, :eval}, args: [{:string,_, code}|opt_env]}, env) do
+      opt_env = Compiler.eval(opt_env, env)
+      local_scope = Env.new(env)
+      Env.merge(local_scope, opt_env)
+
+      func = Env.get!(env, :eval)
+      |> apply([code, local_scope])
+    end
+
     def eval(%Apply{applicant: {:identifier, _line, name}, args: args}, env) do
       term = Env.get!(env, name)
       args = Enum.map(args, &(Compiler.eval(&1, env)))
