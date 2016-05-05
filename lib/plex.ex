@@ -14,8 +14,7 @@ defmodule Plex do
       path = Path.absname(file)
 
       File.read!(path)
-      |> Compiler.parse!
-      |> Compiler.eval(Core.bootstrap(Env.new))
+      |> Compiler.eval!(Core.bootstrap(Env.new))
       |> inspect
       |> IO.puts
     end
@@ -67,6 +66,12 @@ defmodule Plex do
 
     def fail!(message) do
       raise Compiler.RuntimeError, message: message
+    end
+
+    def load_stdlib(_env) do
+    end
+
+    def load_file(_env) do
     end
   end
 end

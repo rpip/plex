@@ -2,7 +2,7 @@ defmodule Plex.Compiler.Node.If do
   @moduledoc "IF expressions"
 
   alias __MODULE__
-  alias Plex.{Compiler, Env}
+  alias Plex.Compiler
 
   @type t :: %__MODULE__{
             line: integer,

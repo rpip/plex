@@ -28,7 +28,7 @@ defmodule Plex.Compiler.Node.While do
       do_loop(continue?, condition, body, env)
     end
 
-    defp do_loop(false, condition, body, env), do: :ok
-    defp do_loop(nil, condition, body, env), do: :ok
+    defp do_loop(false, _condition, _body, _env), do: :ok
+    defp do_loop(nil, _condition, _body, _env), do: :ok
   end
 end

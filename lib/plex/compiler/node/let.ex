@@ -34,8 +34,10 @@ defmodule Plex.Compiler.Node.Let do
     defp do_let_bindings(bindings, env) do
       Enum.map(bindings, fn {k, v} ->
           val = Compiler.eval(v, env)
-          Env.bind(env, k, val);
-        {k, v, with_clause} ->
+          Env.bind(env, k, val)
+          val;
+        # TODO: implement `with_clause`
+        {k, v, _with_clause} ->
           val = Compiler.eval(v, env)
           Env.bind(env, k, val);
       end)

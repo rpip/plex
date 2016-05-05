@@ -18,13 +18,6 @@ defmodule Plex.Compiler.Node.BinaryOp do
   ]
 
   defimpl Plex.Compiler.Node do
-    def eval(%BinaryOp{left: left, right: right, type: :=}, env) do
-      key = Compiler.eval(left, env)
-      val = Compiler.eval(right, env)
-      # match left against right
-      val = Env.get!(key)
-    end
-
     def eval(%BinaryOp{left: left, right: right, type: :and}, env) do
       Compiler.eval(left, env) and Compiler.eval(right, env)
     end

@@ -21,6 +21,7 @@ Nonterminals
   arith
   record
   record_extension
+  tuple
   bindings
   binding
   list
@@ -53,6 +54,7 @@ Rootsymbol root.
 
 Right    20  '->'.
 Left     30  ','.
+Left     40  '=='.
 Right    90  ':=' '='.
 Left     100 'or'.
 Left     110 'and'.
@@ -63,7 +65,7 @@ Left     210 '+' '-'.
 Left     220 '*' '/'.
 Left     300 '.'.
 Nonassoc 310 '!' '^'.
-Nonassoc 320 '==' '!=' '>=' '<=' '>' '<' '..'.
+Nonassoc 320 '!=' '>=' '<=' '>' '<' '..'.
 
 
 root -> expr_list : '$1'.
@@ -80,6 +82,7 @@ expr -> string  : '$1'.
 expr -> atom  : '$1'.
 expr -> number  : '$1'.
 expr -> record : '$1'.
+expr -> tuple : '$1'.
 expr -> record_extension : '$1'.
 expr -> list : '$1'.
 expr -> if_expr : '$1'.
@@ -188,7 +191,7 @@ elems -> elem ',' elems : ['$1'|'$3'].
 elem  -> expr : '$1'.
 
 %% Tuples
-record -> '{' elems '}'       :
+tuple -> '{' elems '}'       :
   build_ast_node('Tuple', #{
      line => ?line('$1'),
      elements => '$2'
@@ -268,19 +271,26 @@ case_expr -> 'case' expr 'do' clauses 'end' :
      clauses => '$4'
     }).
 
-clause -> pattern '->' expr : {'$1','$3'}.
+%% Clauses
+clause -> pattern '->' expr_list :
+  build_ast_node('Clause', #{
+    line => ?line('$1'),
+    patterns => lists:flatten('$1'),
+    exprs => '$3'
+  }).
 clauses -> clause : ['$1'].
-clauses -> clause eol clauses : ['$1'|'$3'].
 clauses -> clause clauses : ['$1'|'$2'].
 
 %% Only pattern match on the following
-pattern -> atom       : '$1'.
-pattern -> string     : '$1'.
-pattern -> list       : '$1'.
-pattern -> record     : '$1'.
-pattern -> identifier : '$1'.
-pattern -> number     : '$1'.
-pattern -> range : '$1'.
+pattern -> atom       : ['$1'].
+pattern -> string     : ['$1'].
+pattern -> list       : ['$1'].
+pattern -> record     : ['$1'].
+pattern -> tuple     : ['$1'].
+pattern -> identifier : ['$1'].
+pattern -> number     : ['$1'].
+pattern -> range : ['$1'].
+pattern -> pattern ',' pattern : ['$1','$3'].
 
 
 %% IF conditions
@@ -348,7 +358,7 @@ comp_op -> '>'  : '$1'.
 comp_op -> '<'  : '$1'.
 comp_op -> '>=' : '$1'.
 comp_op -> '<=' : '$1'.
-comp_op -> '=' : '$1'.
+%comp_op -> '=' : '$1'.
 
 %% Addition operators
 add_op -> '+'  : '$1'.

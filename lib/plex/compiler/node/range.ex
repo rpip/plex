@@ -3,7 +3,6 @@ defmodule Plex.Compiler.Node.Range do
 
   alias __MODULE__
   alias Plex.Compiler
-  import Plex.Types
 
   @type t :: %__MODULE__{
             line: integer,
