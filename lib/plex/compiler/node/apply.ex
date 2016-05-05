@@ -4,7 +4,7 @@ defmodule Plex.Compiler.Node.Apply do
   alias __MODULE__
   alias Plex.{Compiler, Env}
   alias Plex.Compiler.Closure
-  alias Plex.Compiler.Node.Function
+  alias Plex.Compiler.Node.{Function, ValueFunc}
 
   @type t :: %__MODULE__{
             line: integer,
@@ -43,6 +43,7 @@ defmodule Plex.Compiler.Node.Apply do
       case term do
         # TODO: check for correct arity
         %Closure{value: closure} -> apply(closure, [args])
+        %ValueFunc{function: %Closure{value: closure}} -> apply(closure, [args])
         func -> apply(func, args)
       end
     end

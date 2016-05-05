@@ -1,3 +1,27 @@
+defmodule Plex.Compiler.Node.ValueFunc do
+  @moduledoc """
+  Value with functions attached.
+
+  This type of value can be used as plain values and in function application.
+  """
+
+  alias __MODULE__
+  alias Plex.Compiler
+
+  defstruct [
+    :value,
+    :function
+  ]
+
+  defimpl Plex.Compiler.Node do
+    def eval(%ValueFunc{value: value}, _env) do
+      IO.puts "ValueFunc: #{value}"
+      value
+    end
+  end
+end
+
+
 defmodule Plex.Compiler.Node.Let do
   @moduledoc """
   Let bindings
@@ -6,6 +30,7 @@ defmodule Plex.Compiler.Node.Let do
   """
   alias __MODULE__
   alias Plex.{Compiler, Env}
+  alias Plex.Compiler.Node.ValueFunc
 
   @type t :: %__MODULE__{
             line: integer,
@@ -37,9 +62,11 @@ defmodule Plex.Compiler.Node.Let do
           Env.bind(env, k, val)
           val;
         # TODO: implement `with_clause`
-        {k, v, _with_clause} ->
+        {k, v, {:with_function, func}} ->
           val = Compiler.eval(v, env)
-          Env.bind(env, k, val);
+          func = Compiler.eval(func, env)
+          val_func = %ValueFunc{value: val, function: func}
+          Env.bind(env, k, val_func);
       end)
     end
   end

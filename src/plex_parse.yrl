@@ -52,6 +52,7 @@ Terminals
 
 Rootsymbol root.
 
+Left 10 'do'.
 Right    20  '->'.
 Left     30  ','.
 Left     40  '=='.
@@ -59,14 +60,13 @@ Right    90  ':=' '='.
 Left     100 'or'.
 Left     110 'and'.
 Left     140 'in'.
-Left     160 'with'.
 %% (1 + 2 * 3 -4) :: sub -> plus -> mul
 Left     210 '+' '-'.
 Left     220 '*' '/'.
 Left     300 '.'.
+Nonassoc 160 'with'.
 Nonassoc 310 '!' '^'.
 Nonassoc 320 '!=' '>=' '<=' '>' '<' '..'.
-
 
 root -> expr_list : '$1'.
 

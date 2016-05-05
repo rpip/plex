@@ -3,7 +3,7 @@ defmodule Plex.Compiler do
   Parses text and transaltes into Elixir data structures
   """
   alias __MODULE__
-  alias Plex.Env
+  alias Plex.{Env, Compiler.Node.ValueFunc}
 
   def lex(text) do
     {:ok, tokens, _} = text |> to_char_list |> :plex_scan.string
@@ -43,14 +43,8 @@ defmodule Plex.Compiler do
   @doc "Evaluates parse tree"
   @spec eval([Compiler.Node.t], Env.t) :: term
   def eval(ast, env) when is_list(ast) do
-    result =
-      (Enum.map(ast, &(eval(&1, env)))
-      |> Enum.at(-1))
-
-    case result do
-      [h|_] -> h
-      _ -> result
-    end
+    Enum.map(ast, &(eval(&1, env)))
+    |> Enum.at(-1)
   end
 
   def eval({:integer, _, n}, _env) do
@@ -66,7 +60,10 @@ defmodule Plex.Compiler do
   end
 
   def eval({:identifier, _, name},env) do
-    Env.get!(env, name)
+    case Env.get!(env, name) do
+      %ValueFunc{value: value} -> value
+      val -> val
+    end
   end
 
   def eval({:bool, _, val}, _env) do

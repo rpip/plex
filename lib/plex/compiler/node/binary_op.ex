@@ -1,7 +1,7 @@
 defmodule Plex.Compiler.Node.BinaryOp do
   @moduledoc "Binary operations"
   alias __MODULE__
-  alias Plex.{Env, Compiler}
+  alias Plex.Compiler
 
   @type t :: %__MODULE__{
             line: integer,
