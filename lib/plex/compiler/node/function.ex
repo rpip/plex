@@ -1,5 +1,14 @@
 defmodule Plex.Compiler.Closure do
-  defstruct [:value]
+
+  @type t :: %__MODULE__{
+            value: fun,
+            arity: integer
+        }
+
+  defstruct [
+    :value,
+    :arity
+  ]
 end
 
 
@@ -12,24 +21,34 @@ defmodule Plex.Compiler.Node.Function do
   @type t :: %__MODULE__{
             line: integer,
             params: list,
-            body: any
+            body: any,
         }
 
   defstruct [
     :line,
     :params,
-    :body
+    :body,
   ]
 
   defimpl Plex.Compiler.Node do
     def eval(%Function{params: params, body: body}, env) do
-      closure = fn args ->
-        bindings = Enum.zip(params, args) |> Enum.into(%{})
-        local_scope = Env.new(env, bindings)
-        Compiler.eval(body, local_scope)
+      closure = fn
+        # HACK passes {args, %{self: current projected object}}
+        {args, extra_env} ->
+          bindings =
+            Enum.zip(params, args)
+            |> Enum.into(%{})
+            |> Map.merge(extra_env)
+
+          local_scope = Env.new(env, bindings)
+          Compiler.eval(body, local_scope)
+        args ->
+          bindings = Enum.zip(params, args) |> Enum.into(%{})
+          local_scope = Env.new(env, bindings)
+          Compiler.eval(body, local_scope)
       end
 
-      %Plex.Compiler.Closure{value: closure}
+      %Plex.Compiler.Closure{value: closure, arity: length(params)}
     end
   end
 end

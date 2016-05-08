@@ -2,6 +2,7 @@ defmodule Plex.Env do
   @moduledoc "Key-Value bindings managed by a process"
 
   alias Plex.Types.Ref
+  alias Plex.Error
   alias __MODULE__
 
   @type t :: %{outer: Env.t, env: map}
@@ -64,7 +65,7 @@ defmodule Plex.Env do
   @spec get!(pid, key) :: any | no_return
   def get!(pid, key) do
     case find(pid, key) do
-      nil -> raise(Plex.Compiler.RuntimeError, error: "unbound variable #{key}")
+      nil -> Error.unbound_var!(message: "unbound value #{key}")
       env -> lookup_name(env, key)
     end
   end
@@ -73,7 +74,7 @@ defmodule Plex.Env do
   @spec ref_get!(pid, key) :: any | no_return
   def ref_get!(pid, key) do
     case find(pid, key) do
-      nil -> raise(Plex.Compiler.RuntimeError, error: "unbound variable #{key}")
+      nil -> Error.unbound_var!(message: "unbound value #{key}")
       env -> lookup_name(env, key) |> Ref.deref
     end
   end
@@ -82,7 +83,7 @@ defmodule Plex.Env do
   @spec ref_set!(pid, key, any) :: :ok | no_return
   def ref_set!(pid, key, value) do
     case find(pid, key) do
-      nil -> raise(Plex.Compiler.RuntimeError, error: "unbound variable #{key}")
+      nil -> Error.unbound_var!(message: "unbound variable #{key}")
       env -> get!(env, key) |> Ref.update(value)
     end
   end

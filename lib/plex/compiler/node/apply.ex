@@ -4,7 +4,7 @@ defmodule Plex.Compiler.Node.Apply do
   alias __MODULE__
   alias Plex.{Compiler, Env}
   alias Plex.Compiler.Closure
-  alias Plex.Compiler.Node.{Function, ValueFunc}
+  alias Plex.Compiler.Node.{Function, ValueFunc, Project}
 
   @type t :: %__MODULE__{
             line: integer,
@@ -42,10 +42,22 @@ defmodule Plex.Compiler.Node.Apply do
 
       case term do
         # TODO: check for correct arity
-        %Closure{value: closure} -> apply(closure, [args])
-        %ValueFunc{function: %Closure{value: closure}} -> apply(closure, [args])
-        func -> apply(func, args)
+        %Closure{value: closure} ->
+          apply(closure, [args])
+        %ValueFunc{function: %Closure{value: closure}} ->
+          apply(closure, [args])
+        _ ->
+          apply(term, args)
       end
+    end
+
+    def eval(%Apply{applicant: %Project{object: object} = term, args: args}, env) do
+      object = Env.get!(env, Plex.Utils.unwrap(object))
+      %Closure{value: closure} = Compiler.eval(term, env)
+      args = Enum.map(args, &(Compiler.eval(&1, env)))
+      # HACK: Passes current object as `self`. See Function eval for
+      # implementation details. CHANGE: Passe `self` as a Ref type
+      apply(closure, [{args, %{self: object}}])
     end
 
     def eval(%Apply{applicant: %Function{body: body, params: params}, args: args}, env) do

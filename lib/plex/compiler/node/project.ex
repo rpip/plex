@@ -19,7 +19,12 @@ defmodule Plex.Compiler.Node.Project do
   defimpl Plex.Compiler.Node do
     def eval(%Project{object: object, field: field}, env) do
       object = Compiler.eval(object, env)
-      Map.get(object, field)
+      case Map.fetch(object, field) do
+        {:ok, val} ->
+          val
+        :error ->
+          {:error, "key #{field} not found in #{inspect object}"}
+      end
     end
   end
 end

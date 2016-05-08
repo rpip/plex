@@ -65,7 +65,7 @@ defmodule Plex do
     end
 
     def fail!(message) do
-      raise Compiler.RuntimeError, message: message
+      raise Plex.Error, type: RuntimeError, message: message
     end
 
     def load_stdlib(_env) do

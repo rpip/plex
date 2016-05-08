@@ -52,7 +52,6 @@ Terminals
 
 Rootsymbol root.
 
-Left 10 'do'.
 Right    20  '->'.
 Left     30  ','.
 Left     40  '=='.
@@ -93,7 +92,6 @@ applicable -> project : '$1'.
 applicable -> identifier : '$1'.
 applicable -> function : '$1'.
 applicable -> '(' applicable ')': '$2'.
-%applicable -> '(' applicable expr')': '$2'.
 
 expr -> for_expr : '$1'.
 expr -> while_expr : '$1'.
@@ -124,23 +122,21 @@ let_expr -> 'let' bindings 'in' expr :
 %% let add x, y = x + y is the rewritten as let add = fn x, y -> x + y
 let_expr -> 'let' identifier params '=' expr:
   sugar_function_def('$2', '$3', '$5').
-let_expr -> 'let' identifier '(' elems ')' '=' expr:
+let_expr -> 'let' identifier '(' params ')' '=' expr:
   sugar_function_def('$2', '$4', '$7').
 let_expr -> 'let' identifier params '=' expr 'in' expr:
   sugar_function_def('$2', '$3', '$5', '$7').
-let_expr -> 'let' identifier '(' elems ')' '=' expr 'in' expr:
-  sugar_function_def('$2', '$4', '$7', '$9').
 
 %% references
 deref -> '!' dereferable :
   build_ast_node('Deref', #{
      line => ?line('$1'),
-     ref => unwrap('$2')
+     ref => '$2'
   }).
 ref_update -> dereferable ':=' expr :
   build_ast_node('UpdateRef', #{
      line  => ?line('$1'),
-     ref  => unwrap('$1'),
+     ref  => '$1',
      value => '$3'
   }).
 dereferable -> identifier : '$1'.
@@ -227,7 +223,7 @@ project -> project '.' identifier:
   build_ast_node('Project', #{
     line   => ?line('$1'),
     object => '$1',
-    field  => '$3'
+    field  => unwrap('$3')
   }).
 
 %% Functions
@@ -358,7 +354,6 @@ comp_op -> '>'  : '$1'.
 comp_op -> '<'  : '$1'.
 comp_op -> '>=' : '$1'.
 comp_op -> '<=' : '$1'.
-%comp_op -> '=' : '$1'.
 
 %% Addition operators
 add_op -> '+'  : '$1'.

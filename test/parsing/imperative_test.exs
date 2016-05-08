@@ -33,7 +33,7 @@ defmodule Plex.ImperativeTests do
                body: [
                %Plex.Compiler.Node.UpdateRef{
                         line: 2,
-                        ref: :tasks,
+                        ref: {:identifier, 2, :tasks},
                         value: %Plex.Compiler.Node.Apply{
                                    applicant:
                                    %Plex.Compiler.Node.Project{
@@ -49,11 +49,11 @@ defmodule Plex.ImperativeTests do
                                }
                     }
                ],
-               generator: %Plex.Compiler.Node.Range{from:
-                                                    {:integer, 1, 0},
-                                                    line: 1,
-                                                    to: {:integer, 1, 5}
-                                                   },
+               generator: %Plex.Compiler.Node.Range{
+                              from: {:integer, 1, 0},
+                              line: 1,
+                              to: {:integer, 1, 5}
+                          },
                line: 1,
                term: :x
            }
@@ -87,17 +87,17 @@ defmodule Plex.ImperativeTests do
                                    y:
                                    %Plex.Compiler.Node.Deref{
                                             line: 2,
-                                            ref: :x
+                                            ref: {:identifier, 2, :x},
                                         }
                                  ],
                                  in_block: %Plex.Compiler.Node.UpdateRef{
                                                line: 3,
-                                               ref: :x,
+                                               ref: {:identifier, 3, :x},
                                                value: %Plex.Compiler.Node.BinaryOp{
                                                           left:
                                                           %Plex.Compiler.Node.Deref{
                                                                    line: 3,
-                                                                   ref: :x
+                                                                   ref: {:identifier, 3, :x},
                                                                },
                                                           line: 3,
                                                           right: {:integer, 3, 1},
@@ -111,7 +111,7 @@ defmodule Plex.ImperativeTests do
                    line: 4,
                    right: %Plex.Compiler.Node.Deref{
                               line: 4,
-                              ref: :x
+                              ref: {:identifier, 4, :x},
                           },
                    type: :+
                }
@@ -142,7 +142,7 @@ defmodule Plex.ImperativeTests do
                condition: %Plex.Compiler.Node.BinaryOp{
                               left: %Plex.Compiler.Node.Deref{
                                         line: 1,
-                                        ref: :tasks
+                                        ref: {:identifier, 1, :tasks}
                                     },
                               line: 1,
                               right: %Plex.Compiler.Node.List{

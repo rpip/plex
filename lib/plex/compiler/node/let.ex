@@ -61,7 +61,6 @@ defmodule Plex.Compiler.Node.Let do
           val = Compiler.eval(v, env)
           Env.bind(env, k, val)
           val;
-        # TODO: implement `with_clause`
         {k, v, {:with_function, func}} ->
           val = Compiler.eval(v, env)
           func = Compiler.eval(func, env)

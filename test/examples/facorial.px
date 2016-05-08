@@ -3,4 +3,6 @@ let factorial = fn n ->
     then 1
     else n * factorial (n - 1);
 
-factorial 10
+
+let main =
+  factorial 10

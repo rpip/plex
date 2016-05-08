@@ -134,8 +134,6 @@ is_keyword('or') ->
     true;
 is_keyword('then') ->
     true;
-is_keyword('this') ->
-    true;
 is_keyword('true') ->
     true;
 is_keyword('false') ->

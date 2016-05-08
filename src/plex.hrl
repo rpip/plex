@@ -26,7 +26,7 @@ extract_line({_, Line} = _Node) ->
     Line;
 extract_line(Node) when is_map(Node) ->
     maps:get(line, Node);
-extract_line(Node) ->
+extract_line(_Node) ->
   nil.
 
 sugar_function_def(Identifier, Params, FunctionBody) ->
