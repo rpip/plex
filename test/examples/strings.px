@@ -1,3 +1,5 @@
 -- print "hello world!"
 
+let x = 10;
+
 print  "#{x + 10}"
